@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pauzerooster Agenten - Bewerkbaar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 15px;
+            max-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            max-width: 100%;
+            height: 95vh;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 15px 20px;
+            border-bottom: 3px solid #2980b9;
+            flex-shrink: 0;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        h1 {
+            font-size: 22px;
+            margin-bottom: 3px;
+        }
+        
+        .subtitle {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .date-selector input {
+            padding: 5px 8px;
+            border-radius: 4px;
+            border: none;
+            font-size: 13px;
+            width: 120px;
+        }
+        
+        .controls {
+            padding: 12px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #eaeaea;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 8px 8px 8px 35px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 6px 12px;
+            border-radius: 5px;
+            border: none;
+            background-color: #ecf0f1;
+            color: #34495e;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+        
+        .filter-btn:hover {
+            background-color: #d5dbdb;
+        }
+        
+        .filter-btn.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 5px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+        
+        .btn-save {
+            background-color: #27ae60;
+        }
+        
+        .btn-save:hover {
+            background-color: #219653;
+        }
+        
+        .btn-reset {
+            background-color: #e74c3c;
+        }
+        
+        .btn-reset:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-add-agent {
+            background-color: #9b59b6;
+        }
+        
+        .btn-add-agent:hover {
+            background-color: #8e44ad;
+        }
+        
+        .btn-bulk-edit {
+            background-color: #f39c12;
+        }
+        
+        .btn-bulk-edit:hover {
+            background-color: #d68910;
+        }
+        
+        .btn-export {
+            background-color: #1abc9c;
+        }
+        
+        .btn-export:hover {
+            background-color: #16a085;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #eaeaea;
+            font-size: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .legend-item:hover {
+            background-color: #eaeaea;
+        }
+        
+        .color-box {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+        
+        .color-werk { background-color: #2ecc71; }
+        .color-kort { background-color: #ff9ff3; }
+        .color-lunch { background-color: #54a0ff; }
+        .color-ad-hoc { background-color: #ff6b6b; }
+        .color-verlof { background-color: #a29bfe; }
+        .color-ziek { background-color: #e74c3c; }
+        .color-geen { background-color: #f8f9fa; border: 1px solid #ddd; }
+        
+        .table-container {
+            overflow: auto;
+            padding: 0 15px 15px;
+            flex-grow: 1;
+            height: 100%;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        
+        th {
+            background-color: #34495e;
+            color: white;
+            padding: 8px 5px;
+            text-align: center;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 11px;
+        }
+        
+        .time-header {
+            min-width: 50px;
+            max-width: 50px;
+        }
+        
+        .agent-header {
+            min-width: 150px;
+            max-width: 150px;
+            text-align: left;
+            padding-left: 10px;
+        }
+        
+        td {
+            padding: 4px 3px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+            cursor: pointer;
+            transition: all 0.2s;
+            height: 28px;
+            max-width: 50px;
+            overflow: hidden;
+        }
+        
+        .agent-cell {
+            text-align: left;
+            padding-left: 10px;
+            font-weight: 600;
+            background-color: #f8f9fa;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            min-width: 150px;
+            max-width: 150px;
+            cursor: default;
+            font-size: 12px;
+        }
+        
+        .werk { background-color: #2ecc71; color: white; font-weight: bold; }
+        .kort { background-color: #ff9ff3; color: #333; font-weight: bold; }
+        .lunch { background-color: #54a0ff; color: white; font-weight: bold; }
+        .ad-hoc { background-color: #ff6b6b; color: white; font-weight: bold; }
+        .verlof { background-color: #a29bfe; color: white; font-weight: bold; }
+        .ziek { background-color: #e74c3c; color: white; font-weight: bold; }
+        .geen { background-color: #f8f9fa; }
+        
+        .cell-label {
+            font-size: 10px;
+            padding: 1px 3px;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+        
+        .agent-row:hover {
+            background-color: #f1f8ff;
+        }
+        
+        .agent-row:hover .agent-cell {
+            background-color: #e3f2fd;
+        }
+        
+        .agent-id {
+            color: #7f8c8d;
+            font-weight: normal;
+            font-size: 11px;
+        }
+        
+        .agent-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 3px;
+        }
+        
+        .agent-action-btn {
+            padding: 1px 5px;
+            font-size: 10px;
+            border-radius: 2px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .agent-action-btn:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .footer {
+            padding: 12px 20px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #eaeaea;
+            font-size: 12px;
+            color: #7f8c8d;
+            flex-shrink: 0;
+        }
+        
+        .notes {
+            margin-top: 12px;
+            padding: 10px;
+            background-color: #fff8e1;
+            border-radius: 6px;
+            border-left: 3px solid #ffc107;
+            font-size: 11px;
+        }
+        
+        .notes h3 {
+            color: #d68910;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        
+        .context-menu {
+            position: absolute;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            min-width: 180px;
+            display: none;
+            font-size: 13px;
+        }
+        
+        .context-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .context-menu-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .context-menu-divider {
+            height: 1px;
+            background-color: #eaeaea;
+            margin: 4px 0;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            width: 90%;
+            max-width: 450px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #34495e;
+            font-size: 14px;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        .modal-btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .modal-btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .modal-btn-secondary {
+            background-color: #ecf0f1;
+            color: #333;
+        }
+        
+        .bulk-edit-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .bulk-edit-btn {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+        
+        .bulk-edit-btn:hover {
+            background-color: #f5f5f5;
+        }
+        
+        @media (max-width: 1200px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .date-selector {
+                align-self: stretch;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                height: 98vh;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-buttons, .action-buttons {
+                justify-content: center;
+            }
+            
+            th, td {
+                padding: 4px 2px;
+                font-size: 10px;
+            }
+            
+            .agent-header, .agent-cell {
+                min-width: 130px;
+                max-width: 130px;
+            }
+            
+            .cell-label {
+                font-size: 9px;
+            }
+            
+            .time-header {
+                min-width: 45px;
+                max-width: 45px;
+            }
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .edit-mode-indicator {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background-color: #f39c12;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            display: none;
+            font-size: 12px;
+        }
+        
+        .export-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .export-preview {
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow: auto;
+        }
+        
+        .export-preview img {
+            max-width: 100%;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .export-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .export-btn-modal {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .compact-toggle {
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+        
+        .compact-toggle:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .compact-mode .cell-label {
+            font-size: 9px;
+            padding: 0 1px;
+        }
+        
+        .compact-mode td {
+            height: 24px;
+            padding: 2px;
+        }
+        
+        .compact-mode .agent-cell {
+            min-width: 140px;
+            max-width: 140px;
+        }
+        
+        .compact-mode .time-header {
+            min-width: 45px;
+            max-width: 45px;
+        }
+    </style>
+</head>
+<body>
+    <div class="edit-mode-indicator" id="editModeIndicator">
+        <i class="fas fa-edit"></i> Bewerkmodus
+    </div>
+    
+    <div class="container" id="mainContainer">
+        <header>
+            <div class="header-content">
+                <div>
+                    <h1><i class="fas fa-clock"></i> Pauzerooster Agenten</h1>
+                    <p class="subtitle">Interactief rooster met bewerkingsmogelijkheden</p>
+                </div>
+                <div class="date-selector">
+                    <i class="fas fa-calendar-alt"></i>
+                    <input type="date" id="datePicker" value="2024-04-15">
+                    <span>Dienst: 10:00-19:00</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Zoek agent...">
+            </div>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn" data-filter="all">
+                    <i class="fas fa-users"></i> Alle
+                </button>
+                <button class="filter-btn" data-filter="pauze">
+                    <i class="fas fa-utensils"></i> Pauze
+                </button>
+                <button class="filter-btn" data-filter="werk">
+                    <i class="fas fa-briefcase"></i> Werk
+                </button>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn btn-add-agent" id="addAgentBtn">
+                    <i class="fas fa-user-plus"></i> Agent
+                </button>
+                <button class="action-btn btn-bulk-edit" id="bulkEditBtn">
+                    <i class="fas fa-edit"></i> Bulk
+                </button>
+                <button class="action-btn btn-export" id="exportBtn">
+                    <i class="fas fa-camera"></i> Afbeelding
+                </button>
+                <button class="action-btn btn-reset" id="resetBtn">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+                <button class="action-btn btn-save" id="saveBtn">
+                    <i class="fas fa-save"></i> Opslaan
+                </button>
+                <button class="compact-toggle" id="compactToggle">
+                    <i class="fas fa-compress"></i> Compact
+                </button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="legend">
+                <div class="legend-item" data-status="werk">
+                    <div class="color-box color-werk"></div>
+                    <span>Werk</span>
+                </div>
+                <div class="legend-item" data-status="kort">
+                    <div class="color-box color-kort"></div>
+                    <span>Korte pauze</span>
+                </div>
+                <div class="legend-item" data-status="lunch">
+                    <div class="color-box color-lunch"></div>
+                    <span>Lunch</span>
+                </div>
+                <div class="legend-item" data-status="ad-hoc">
+                    <div class="color-box color-ad-hoc"></div>
+                    <span>Ad-hoc</span>
+                </div>
+                <div class="legend-item" data-status="verlof">
+                    <div class="color-box color-verlof"></div>
+                    <span>Verlof</span>
+                </div>
+                <div class="legend-item" data-status="ziek">
+                    <div class="color-box color-ziek"></div>
+                    <span>Ziek</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="roosterTable">
+                <thead>
+                    <tr>
+                        <th class="agent-header">Agent</th>
+                        <!-- Tijden worden hier ingevoegd via JavaScript -->
+                    </tr>
+                </thead>
+                <tbody id="roosterBody">
+                    <!-- Agent rijen worden hier ingevoegd via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="footer">
+            <div class="notes">
+                <h3><i class="fas fa-info-circle"></i> Snelle instructies:</h3>
+                <p><strong>Bewerken:</strong> Klik op cel (linkermuis) voor actieve status. <strong>Rechtermuisklik:</strong> voor menu.</p>
+                <p><strong>Actieve status:</strong> <span id="activeStatusLabel">Werk</span> <strong>| Export:</strong> Klik op Afbeelding knop</p>
+            </div>
+            <p style="margin-top: 10px;"><i class="fas fa-sync-alt"></i> Laatst: <span id="lastModified">-</span> | Agenten: <span id="agentCount">16</span></p>
+        </div>
+    </div>
+    
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" data-status="werk">
+            <div class="color-box color-werk"></div>
+            <span>Werk</span>
+        </div>
+        <div class="context-menu-item" data-status="kort">
+            <div class="color-box color-kort"></div>
+            <span>Korte pauze</span>
+        </div>
+        <div class="context-menu-item" data-status="lunch">
+            <div class="color-box color-lunch"></div>
+            <span>Lunch</span>
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" data-status="ad-hoc">
+            <div class="color-box color-ad-hoc"></div>
+            <span>Ad-hoc Verlof</span>
+        </div>
+        <div class="context-menu-item" data-status="verlof">
+            <div class="color-box color-verlof"></div>
+            <span>Verlof</span>
+        </div>
+        <div class="context-menu-item" data-status="ziek">
+            <div class="color-box color-ziek"></div>
+            <span>Ziek</span>
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" data-status="geen">
+            <div class="color-box color-geen"></div>
+            <span>Leeg</span>
+        </div>
+    </div>
+    
+    <!-- Modal voor Agent Toevoegen -->
+    <div class="modal" id="addAgentModal">
+        <div class="modal-content">
+            <h2><i class="fas fa-user-plus"></i> Nieuwe Agent Toevoegen</h2>
+            <div class="form-group">
+                <label for="newAgentId">Agent ID:</label>
+                <input type="text" id="newAgentId" placeholder="Bijv. 2501">
+            </div>
+            <div class="form-group">
+                <label for="newAgentName">Naam:</label>
+                <input type="text" id="newAgentName" placeholder="Bijv. Jan Jansen">
+            </div>
+            <div class="form-group">
+                <label for="newAgentDefaultStatus">Standaard status:</label>
+                <select id="newAgentDefaultStatus">
+                    <option value="werk">Werk</option>
+                    <option value="kort">Korte pauze</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="ad-hoc">Ad-hoc Verlof</option>
+                    <option value="verlof">Verlof</option>
+                    <option value="ziek">Ziek</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-secondary" id="cancelAddAgent">Annuleren</button>
+                <button class="modal-btn modal-btn-primary" id="confirmAddAgent">Toevoegen</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal voor Bulk Bewerken -->
+    <div class="modal" id="bulkEditModal">
+        <div class="modal-content">
+            <h2><i class="fas fa-edit"></i> Bulk Bewerken</h2>
+            <p>Selecteer agenten en kies een status voor de hele dag:</p>
+            
+            <div class="bulk-edit-options">
+                <button class="bulk-edit-btn" data-status="werk">
+                    <div class="color-box color-werk"></div>
+                    Werk
+                </button>
+                <button class="bulk-edit-btn" data-status="kort">
+                    <div class="color-box color-kort"></div>
+                    Korte pauze
+                </button>
+                <button class="bulk-edit-btn" data-status="lunch">
+                    <div class="color-box color-lunch"></div>
+                    Lunch
+                </button>
+                <button class="bulk-edit-btn" data-status="ad-hoc">
+                    <div class="color-box color-ad-hoc"></div>
+                    Ad-hoc
+                </button>
+                <button class="bulk-edit-btn" data-status="verlof">
+                    <div class="color-box color-verlof"></div>
+                    Verlof
+                </button>
+                <button class="bulk-edit-btn" data-status="ziek">
+                    <div class="color-box color-ziek"></div>
+                    Ziek
+                </button>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-secondary" id="cancelBulkEdit">Annuleren</button>
+                <button class="modal-btn modal-btn-primary" id="confirmBulkEdit">Toepassen</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal voor Export -->
+    <div class="export-modal" id="exportModal">
+        <div class="modal-content">
+            <h2><i class="fas fa-camera"></i> Rooster Exporteren</h2>
+            <p>Voorbeeld van het rooster als afbeelding:</p>
+            
+            <div class="export-preview" id="exportPreview">
+                <!-- Hier komt de afbeelding preview -->
+            </div>
+            
+            <div class="export-actions">
+                <button class="export-btn-modal" id="downloadBtn">
+                    <i class="fas fa-download"></i> Downloaden
+                </button>
+                <button class="export-btn-modal" id="copyBtn">
+                    <i class="fas fa-copy"></i> Kopiëren
+                </button>
+                <button class="modal-btn modal-btn-secondary" id="closeExportBtn">
+                    Sluiten
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tijden voor het rooster
+        const tijden = [
+            "10:00", "10:15", "10:30", "11:00", "11:15", "11:30", "11:45", 
+            "12:00", "12:15", "12:30", "12:45", "13:00", "13:15", "13:30", 
+            "13:45", "14:00", "14:15", "14:30", "14:45", "15:00", "15:15", 
+            "15:30", "15:45", "16:00", "16:15", "16:30", "16:45", "17:00", 
+            "17:15", "17:30", "17:45", "18:00", "18:15", "18:30", "19:00"
+        ];
+        
+        // Status labels en kleuren
+        const statusConfig = {
+            "werk": { label: "W", color: "werk", fullLabel: "Werk" },
+            "kort": { label: "K", color: "kort", fullLabel: "Korte pauze" },
+            "lunch": { label: "L", color: "lunch", fullLabel: "Lunch" },
+            "ad-hoc": { label: "A", color: "ad-hoc", fullLabel: "Ad-hoc Verlof" },
+            "verlof": { label: "V", color: "verlof", fullLabel: "Verlof" },
+            "ziek": { label: "Z", color: "ziek", fullLabel: "Ziek" },
+            "geen": { label: "", color: "geen", fullLabel: "Geen planning" }
+        };
+        
+        // Agenten data (initiële data)
+        let agenten = [
+            { id: "2401", naam: "Gülden Sahin", pauzes: Array(35).fill("werk") },
+            { id: "2402", naam: "Alex de Klein", pauzes: Array(35).fill("werk") },
+            { id: "2404", naam: "Ilona de Winter", pauzes: Array(35).fill("werk") },
+            { id: "2406", naam: "Hira Kara", pauzes: Array(35).fill("werk") },
+            { id: "2407", naam: "Fatima Millet", pauzes: Array(35).fill("werk") },
+            { id: "2422", naam: "Merve Eltun", pauzes: Array(35).fill("werk") },
+            { id: "2425", naam: "Hatice Aygun", pauzes: Array(35).fill("werk") },
+            { id: "2444", naam: "Nurhan Hasancebi", pauzes: Array(35).fill("werk") },
+            { id: "2454", naam: "Melek Uz", pauzes: Array(35).fill("werk") },
+            { id: "2483", naam: "Fadime Erbil", pauzes: Array(35).fill("werk") },
+            { id: "2423", naam: "Eva Verbeek", pauzes: Array(35).fill("werk") },
+            { id: "2409", naam: "Nathalie de Witte", pauzes: Array(35).fill("werk") },
+            { id: "2411", naam: "Aslihan Ücüncü", pauzes: Array(35).fill("werk") },
+            { id: "2479", naam: "Kezban Egilmez", pauzes: Array(35).fill("werk") },
+            { id: "2485", naam: "Esma Dunya", pauzes: Array(35).fill("werk") },
+            { id: "2445", naam: "Elif Sahin", pauzes: Array(35).fill("werk") },
+            { id: "2438", naam: "Hülya Polat", pauzes: Array(35).fill("werk") }
+        ];
+        
+        // Bewerkingsstatus
+        let activeStatus = "werk";
+        let selectedAgents = new Set();
+        let lastModified = new Date();
+        let editMode = false;
+        let compactMode = true;
+        
+        // Tabel opbouwen
+        function buildTable() {
+            const roosterBody = document.getElementById('roosterBody');
+            const tableHead = document.querySelector('#roosterTable thead tr');
+            
+            // Tijden toevoegen aan header
+            tableHead.innerHTML = '<th class="agent-header">Agent</th>';
+            tijden.forEach(tijd => {
+                const th = document.createElement('th');
+                th.className = 'time-header';
+                th.textContent = tijd;
+                tableHead.appendChild(th);
+            });
+            
+            // Agent rijen toevoegen
+            roosterBody.innerHTML = '';
+            agenten.forEach((agent, index) => {
+                const row = document.createElement('tr');
+                row.className = 'agent-row';
+                row.dataset.agentId = agent.id;
+                row.dataset.agentIndex = index;
+                row.dataset.agentNaam = agent.naam.toLowerCase();
+                
+                // Agent cel
+                const agentCell = document.createElement('td');
+                agentCell.className = 'agent-cell';
+                
+                // Selectie checkbox
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'agent-select';
+                checkbox.dataset.agentId = agent.id;
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        selectedAgents.add(agent.id);
+                    } else {
+                        selectedAgents.delete(agent.id);
+                    }
+                    updateBulkEditButton();
+                });
+                
+                agentCell.appendChild(checkbox);
+                
+                // Agent info
+                const agentInfo = document.createElement('span');
+                agentInfo.innerHTML = `<span class="agent-id">${agent.id}</span> - ${agent.naam}`;
+                agentCell.appendChild(agentInfo);
+                
+                // Agent acties (alleen delete knop in compacte modus)
+                if (!compactMode) {
+                    const agentActions = document.createElement('div');
+                    agentActions.className = 'agent-actions';
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'agent-action-btn';
+                    deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                    deleteBtn.title = 'Agent verwijderen';
+                    deleteBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (confirm(`Weet je zeker dat je agent ${agent.id} - ${agent.naam} wilt verwijderen?`)) {
+                            deleteAgent(index);
+                        }
+                    });
+                    
+                    agentActions.appendChild(deleteBtn);
+                    agentCell.appendChild(agentActions);
+                }
+                
+                row.appendChild(agentCell);
+                
+                // Tijd cellen
+                agent.pauzes.forEach((pauzeStatus, cellIndex) => {
+                    if (cellIndex >= tijden.length) return;
+                    
+                    const td = document.createElement('td');
+                    const status = pauzeStatus || 'geen';
+                    const config = statusConfig[status];
+                    
+                    td.className = config.color;
+                    td.dataset.status = status;
+                    td.dataset.timeIndex = cellIndex;
+                    td.dataset.agentIndex = index;
+                    
+                    if (status !== 'geen') {
+                        const label = document.createElement('div');
+                        label.className = 'cell-label';
+                        label.textContent = config.label;
+                        td.appendChild(label);
+                    }
+                    
+                    // Klik event voor bewerken
+                    td.addEventListener('click', function(e) {
+                        if (e.button === 0) { // Linkermuisknop
+                            updateCellStatus(this, activeStatus);
+                        }
+                    });
+                    
+                    // Contextmenu voor rechtermuisknop
+                    td.addEventListener('contextmenu', function(e) {
+                        e.preventDefault();
+                        showContextMenu(e, this);
+                    });
+                    
+                    row.appendChild(td);
+                });
+                
+                roosterBody.appendChild(row);
+            });
+            
+            applyCompactMode();
+            updateAgentCount();
+            updateLastModified();
+        }
+        
+        // Pas compacte modus toe
+        function applyCompactMode() {
+            const container = document.getElementById('mainContainer');
+            if (compactMode) {
+                container.classList.add('compact-mode');
+            } else {
+                container.classList.remove('compact-mode');
+            }
+        }
+        
+        // Cel status bijwerken
+        function updateCellStatus(cell, newStatus) {
+            if (!cell.dataset.agentIndex || !cell.dataset.timeIndex) return;
+            
+            const agentIndex = parseInt(cell.dataset.agentIndex);
+            const timeIndex = parseInt(cell.dataset.timeIndex);
+            
+            if (agentIndex >= 0 && timeIndex >= 0 && agenten[agentIndex]) {
+                // Update de data
+                agenten[agentIndex].pauzes[timeIndex] = newStatus;
+                
+                // Update de cel
+                const config = statusConfig[newStatus];
+                cell.className = config.color;
+                cell.dataset.status = newStatus;
+                
+                if (newStatus === 'geen') {
+                    cell.innerHTML = '';
+                } else {
+                    const label = document.createElement('div');
+                    label.className = 'cell-label';
+                    label.textContent = config.label;
+                    cell.innerHTML = '';
+                    cell.appendChild(label);
+                }
+                
+                editMode = true;
+                updateEditModeIndicator();
+                updateLastModified();
+            }
+        }
+        
+        // Contextmenu tonen
+        function showContextMenu(event, cell) {
+            const contextMenu = document.getElementById('contextMenu');
+            
+            // Positioneer het menu
+            contextMenu.style.left = `${event.pageX}px`;
+            contextMenu.style.top = `${event.pageY}px`;
+            contextMenu.style.display = 'block';
+            
+            // Sla de geselecteerde cel op
+            contextMenu.dataset.selectedCell = JSON.stringify({
+                agentIndex: cell.dataset.agentIndex,
+                timeIndex: cell.dataset.timeIndex,
+                elementId: cell.id || null
+            });
+            
+            // Voeg click event toe aan menu items
+            const menuItems = contextMenu.querySelectorAll('.context-menu-item');
+            menuItems.forEach(item => {
+                item.onclick = function() {
+                    const status = this.dataset.status;
+                    updateCellStatus(cell, status);
+                    contextMenu.style.display = 'none';
+                };
+            });
+            
+            // Sluit het menu als er ergens anders wordt geklikt
+            setTimeout(() => {
+                document.addEventListener('click', closeContextMenu);
+            }, 10);
+        }
+        
+        // Contextmenu sluiten
+        function closeContextMenu() {
+            document.getElementById('contextMenu').style.display = 'none';
+            document.removeEventListener('click', closeContextMenu);
+        }
+        
+        // Filter functionaliteit
+        function setupFilters() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const searchInput = document.getElementById('searchInput');
+            
+            // Filter knoppen
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Verwijder active class van alle knoppen
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // Voeg active class toe aan geklikte knop
+                    button.classList.add('active');
+                    
+                    const filter = button.dataset.filter;
+                    filterRows(filter);
+                });
+            });
+            
+            // Zoek functionaliteit
+            searchInput.addEventListener('input', () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                filterRows('search', searchTerm);
+            });
+            
+            // Standaard filter op 'alle'
+            document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+        }
+        
+        // Rijen filteren
+        function filterRows(filterType, searchTerm = '') {
+            const rows = document.querySelectorAll('.agent-row');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const agentId = row.dataset.agentId;
+                const agentNaam = row.dataset.agentNaam;
+                let showRow = true;
+                
+                if (filterType === 'search') {
+                    // Zoek op ID of naam
+                    showRow = agentId.includes(searchTerm) || agentNaam.includes(searchTerm);
+                } else if (filterType === 'pauze') {
+                    // Toon alleen agenten met pauzes op dit moment
+                    const now = new Date();
+                    const currentHour = now.getHours().toString().padStart(2, '0');
+                    const currentMinute = now.getMinutes();
+                    const currentTime = `${currentHour}:${currentMinute < 15 ? '00' : currentMinute < 30 ? '15' : currentMinute < 45 ? '30' : '45'}`;
+                    
+                    const timeIndex = tijden.indexOf(currentTime);
+                    if (timeIndex !== -1) {
+                        const cell = row.children[timeIndex + 1]; // +1 vanwege agent cel
+                        const status = cell.dataset.status;
+                        showRow = status === 'kort' || status === 'lunch';
+                    } else {
+                        showRow = false;
+                    }
+                } else if (filterType === 'werk') {
+                    // Toon alleen agenten die nu werken
+                    const now = new Date();
+                    const currentHour = now.getHours().toString().padStart(2, '0');
+                    const currentMinute = now.getMinutes();
+                    const currentTime = `${currentHour}:${currentMinute < 15 ? '00' : currentMinute < 30 ? '15' : currentMinute < 45 ? '30' : '45'}`;
+                    
+                    const timeIndex = tijden.indexOf(currentTime);
+                    if (timeIndex !== -1) {
+                        const cell = row.children[timeIndex + 1]; // +1 vanwege agent cel
+                        showRow = cell.dataset.status === 'werk';
+                    } else {
+                        showRow = false;
+                    }
+                }
+                // Voor 'all' filter is showRow al true
+                
+                row.style.display = showRow ? '' : 'none';
+                if (showRow) visibleCount++;
+            });
+            
+            updateAgentCount(visibleCount);
+        }
+        
+        // Agent toevoegen
+        function setupAddAgentModal() {
+            const addAgentBtn = document.getElementById('addAgentBtn');
+            const addAgentModal = document.getElementById('addAgentModal');
+            const cancelAddAgent = document.getElementById('cancelAddAgent');
+            const confirmAddAgent = document.getElementById('confirmAddAgent');
+            
+            addAgentBtn.addEventListener('click', () => {
+                // Genereer een nieuw agent ID (hoogste bestaande + 1)
+                let maxId = 2400;
+                agenten.forEach(agent => {
+                    const idNum = parseInt(agent.id);
+                    if (idNum > maxId) maxId = idNum;
+                });
+                
+                document.getElementById('newAgentId').value = (maxId + 1).toString();
+                document.getElementById('newAgentName').value = '';
+                addAgentModal.style.display = 'flex';
+            });
+            
+            cancelAddAgent.addEventListener('click', () => {
+                addAgentModal.style.display = 'none';
+            });
+            
+            confirmAddAgent.addEventListener('click', () => {
+                const newId = document.getElementById('newAgentId').value.trim();
+                const newName = document.getElementById('newAgentName').value.trim();
+                const defaultStatus = document.getElementById('newAgentDefaultStatus').value;
+                
+                if (!newId || !newName) {
+                    alert('Vul alstublieft een ID en naam in');
+                    return;
+                }
+                
+                // Controleer of ID al bestaat
+                if (agenten.some(agent => agent.id === newId)) {
+                    alert(`Agent ID ${newId} bestaat al. Kies een ander ID.`);
+                    return;
+                }
+                
+                // Voeg nieuwe agent toe
+                const newAgent = {
+                    id: newId,
+                    naam: newName,
+                    pauzes: Array(35).fill(defaultStatus)
+                };
+                
+                agenten.push(newAgent);
+                buildTable();
+                addAgentModal.style.display = 'none';
+                
+                // Scroll naar nieuwe agent
+                setTimeout(() => {
+                    const newRow = document.querySelector(`.agent-row[data-agent-id="${newId}"]`);
+                    if (newRow) newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            });
+            
+            // Sluit modal bij klik buiten
+            addAgentModal.addEventListener('click', (e) => {
+                if (e.target === addAgentModal) {
+                    addAgentModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Agent verwijderen
+        function deleteAgent(index) {
+            if (index >= 0 && index < agenten.length) {
+                agenten.splice(index, 1);
+                buildTable();
+                updateLastModified();
+            }
+        }
+        
+        // Bulk bewerken modal
+        function setupBulkEditModal() {
+            const bulkEditBtn = document.getElementById('bulkEditBtn');
+            const bulkEditModal = document.getElementById('bulkEditModal');
+            const cancelBulkEdit = document.getElementById('cancelBulkEdit');
+            const confirmBulkEdit = document.getElementById('confirmBulkEdit');
+            const bulkEditOptions = bulkEditModal.querySelectorAll('.bulk-edit-btn');
+            
+            bulkEditBtn.addEventListener('click', () => {
+                if (selectedAgents.size === 0) {
+                    alert('Selecteer eerst agenten door op de checkbox naast hun naam te klikken');
+                    return;
+                }
+                
+                bulkEditModal.style.display = 'flex';
+            });
+            
+            cancelBulkEdit.addEventListener('click', () => {
+                bulkEditModal.style.display = 'none';
+            });
+            
+            // Klik op bulk edit opties
+            let selectedBulkStatus = 'werk';
+            bulkEditOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Verwijder highlight van alle opties
+                    bulkEditOptions.forEach(opt => {
+                        opt.style.backgroundColor = 'white';
+                        opt.style.borderColor = '#ddd';
+                    });
+                    
+                    // Highlight geselecteerde optie
+                    this.style.backgroundColor = '#f0f0f0';
+                    this.style.borderColor = '#3498db';
+                    
+                    selectedBulkStatus = this.dataset.status;
+                });
+            });
+            
+            confirmBulkEdit.addEventListener('click', () => {
+                // Pas de geselecteerde status toe op alle geselecteerde agenten
+                selectedAgents.forEach(agentId => {
+                    const agentIndex = agenten.findIndex(a => a.id === agentId);
+                    if (agentIndex !== -1) {
+                        // Update alle tijdslots voor deze agent
+                        agenten[agentIndex].pauzes = Array(35).fill(selectedBulkStatus);
+                    }
+                });
+                
+                // Herbouw de tabel
+                buildTable();
+                bulkEditModal.style.display = 'none';
+                
+                // Reset selectie
+                selectedAgents.clear();
+                document.querySelectorAll('.agent-select').forEach(cb => {
+                    cb.checked = false;
+                });
+                updateBulkEditButton();
+            });
+            
+            // Sluit modal bij klik buiten
+            bulkEditModal.addEventListener('click', (e) => {
+                if (e.target === bulkEditModal) {
+                    bulkEditModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Update bulk edit knop tekst
+        function updateBulkEditButton() {
+            const bulkEditBtn = document.getElementById('bulkEditBtn');
+            if (selectedAgents.size > 0) {
+                bulkEditBtn.innerHTML = `<i class="fas fa-edit"></i> Bulk (${selectedAgents.size})`;
+            } else {
+                bulkEditBtn.innerHTML = `<i class="fas fa-edit"></i> Bulk`;
+            }
+        }
+        
+        // Reset functionaliteit
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            if (confirm('Weet je zeker dat je alle wijzigingen wilt resetten? Alle aangepaste pauzes gaan verloren.')) {
+                // Reset alle agenten naar standaard "werk" status
+                agenten.forEach(agent => {
+                    agent.pauzes = Array(35).fill("werk");
+                });
+                buildTable();
+                editMode = false;
+                updateEditModeIndicator();
+            }
+        });
+        
+        // Opslaan functionaliteit
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            // Simuleer opslaan (in een echte app zou je dit naar een server sturen)
+            const roosterData = {
+                date: document.getElementById('datePicker').value,
+                agenten: agenten,
+                lastModified: new Date().toISOString()
+            };
+            
+            // Toon opslag melding
+            alert(`Rooster opgeslagen voor ${document.getElementById('datePicker').value}\n\nAantal agenten: ${agenten.length}`);
+            
+            // Bewaar in localStorage (voor demo)
+            try {
+                localStorage.setItem('pauzerooster_data', JSON.stringify(roosterData));
+            } catch (e) {
+                console.log('Kon niet opslaan in localStorage:', e);
+            }
+            
+            editMode = false;
+            updateEditModeIndicator();
+        });
+        
+        // Export als afbeelding functionaliteit
+        function setupExportFunctionality() {
+            const exportBtn = document.getElementById('exportBtn');
+            const exportModal = document.getElementById('exportModal');
+            const closeExportBtn = document.getElementById('closeExportBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            exportBtn.addEventListener('click', function() {
+                // Toon laadindicator
+                exportModal.style.display = 'flex';
+                document.getElementById('exportPreview').innerHTML = '<p>Bezig met genereren van afbeelding...</p>';
+                
+                // Genereer afbeelding van het rooster
+                setTimeout(() => {
+                    captureRoosterAsImage();
+                }, 100);
+            });
+            
+            closeExportBtn.addEventListener('click', function() {
+                exportModal.style.display = 'none';
+            });
+            
+            // Sluit modal bij klik buiten
+            exportModal.addEventListener('click', function(e) {
+                if (e.target === exportModal) {
+                    exportModal.style.display = 'none';
+                }
+            });
+            
+            // Download knop
+            downloadBtn.addEventListener('click', function() {
+                const img = document.querySelector('#exportPreview img');
+                if (img && img.src) {
+                    const link = document.createElement('a');
+                    link.download = `rooster-${document.getElementById('datePicker').value}.png`;
+                    link.href = img.src;
+                    link.click();
+                }
+            });
+            
+            // Kopieer knop (voor mobiel/tablet)
+            copyBtn.addEventListener('click', function() {
+                const img = document.querySelector('#exportPreview img');
+                if (img && img.src) {
+                    // Voor moderne browsers met Clipboard API
+                    if (navigator.clipboard) {
+                        fetch(img.src)
+                            .then(res => res.blob())
+                            .then(blob => {
+                                const item = new ClipboardItem({ "image/png": blob });
+                                navigator.clipboard.write([item])
+                                    .then(() => alert('Afbeelding gekopieerd naar klembord!'))
+                                    .catch(err => console.error('Kon niet kopiëren:', err));
+                            });
+                    } else {
+                        alert('Kopieerfunctie niet ondersteund in deze browser. Gebruik de downloadknop.');
+                    }
+                }
+            });
+        }
+        
+        // Vang het rooster op als afbeelding
+        function captureRoosterAsImage() {
+            // Maak een kopie van de tabel voor export (zonder knoppen en filters)
+            const exportContainer = document.createElement('div');
+            exportContainer.style.padding = '20px';
+            exportContainer.style.backgroundColor = 'white';
+            exportContainer.style.maxWidth = '1000px';
+            exportContainer.style.margin = '0 auto';
+            
+            // Header voor export
+            const header = document.createElement('div');
+            header.style.marginBottom = '15px';
+            header.style.borderBottom = '2px solid #3498db';
+            header.style.paddingBottom = '10px';
+            
+            const title = document.createElement('h2');
+            title.textContent = `Pauzerooster - ${document.getElementById('datePicker').value}`;
+            title.style.color = '#2c3e50';
+            title.style.margin = '0 0 5px 0';
+            
+            const subtitle = document.createElement('p');
+            subtitle.textContent = 'Diensttijden: 10:00 - 19:00 | Laatst bijgewerkt: ' + document.getElementById('lastModified').textContent;
+            subtitle.style.color = '#7f8c8d';
+            subtitle.style.margin = '0';
+            subtitle.style.fontSize = '14px';
+            
+            header.appendChild(title);
+            header.appendChild(subtitle);
+            exportContainer.appendChild(header);
+            
+            // Kopieer de tabel (zonder interactieve elementen)
+            const tableClone = document.getElementById('roosterTable').cloneNode(true);
+            
+            // Verwijder checkboxes en actieknoppen
+            tableClone.querySelectorAll('.agent-select, .agent-actions').forEach(el => {
+                el.remove();
+            });
+            
+            // Maak de tabel iets groter voor leesbaarheid in afbeelding
+            tableClone.style.width = '100%';
+            tableClone.style.fontSize = '14px';
+            tableClone.style.borderCollapse = 'collapse';
+            
+            // Verbeter de zichtbaarheid
+            tableClone.querySelectorAll('th').forEach(th => {
+                th.style.padding = '10px 8px';
+                th.style.fontSize = '13px';
+            });
+            
+            tableClone.querySelectorAll('td').forEach(td => {
+                td.style.padding = '8px 5px';
+                td.style.fontSize = '13px';
+            });
+            
+            tableClone.querySelectorAll('.cell-label').forEach(label => {
+                label.style.fontSize = '12px';
+                label.style.padding = '3px 5px';
+            });
+            
+            exportContainer.appendChild(tableClone);
+            
+            // Legenda toevoegen
+            const legend = document.createElement('div');
+            legend.style.marginTop = '20px';
+            legend.style.padding = '10px';
+            legend.style.backgroundColor = '#f8f9fa';
+            legend.style.borderRadius = '5px';
+            legend.style.fontSize = '12px';
+            legend.style.display = 'flex';
+            legend.style.flexWrap = 'wrap';
+            legend.style.gap = '15px';
+            
+            Object.keys(statusConfig).forEach(status => {
+                if (status === 'geen') return;
+                
+                const legendItem = document.createElement('div');
+                legendItem.style.display = 'flex';
+                legendItem.style.alignItems = 'center';
+                legendItem.style.gap = '5px';
+                
+                const colorBox = document.createElement('div');
+                colorBox.style.width = '15px';
+                colorBox.style.height = '15px';
+                colorBox.style.borderRadius = '3px';
+                colorBox.style.backgroundColor = getComputedStyle(document.querySelector(`.color-${status}`)).backgroundColor;
+                
+                const label = document.createElement('span');
+                label.textContent = statusConfig[status].fullLabel;
+                
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(label);
+                legend.appendChild(legendItem);
+            });
+            
+            exportContainer.appendChild(legend);
+            
+            // Voeg export container tijdelijk toe aan DOM
+            document.body.appendChild(exportContainer);
+            
+            // Gebruik html2canvas om afbeelding te maken
+            html2canvas(exportContainer, {
+                scale: 2, // Hogere resolutie
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: false
+            }).then(canvas => {
+                // Verwijder export container
+                document.body.removeChild(exportContainer);
+                
+                // Toon afbeelding in modal
+                const preview = document.getElementById('exportPreview');
+                preview.innerHTML = '';
+                
+                const img = document.createElement('img');
+                img.src = canvas.toDataURL('image/png');
+                img.alt = 'Rooster export';
+                preview.appendChild(img);
+                
+                // Maak download link
+                const downloadLink = document.createElement('a');
+                downloadLink.href = canvas.toDataURL('image/png');
+                downloadLink.download = `rooster-${document.getElementById('datePicker').value}.png`;
+                downloadLink.textContent = 'Klik hier om te downloaden';
+                downloadLink.style.display = 'block';
+                downloadLink.style.marginTop = '10px';
+                preview.appendChild(downloadLink);
+            }).catch(error => {
+                console.error('Fout bij genereren afbeelding:', error);
+                document.getElementById('exportPreview').innerHTML = 
+                    '<p style="color: red;">Fout bij genereren afbeelding. Probeer het opnieuw.</p>';
+            });
+        }
+        
+        // Laad opgeslagen data (als beschikbaar)
+        function loadSavedData() {
+            try {
+                const savedData = localStorage.getItem('pauzerooster_data');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    if (data.agenten && data.date === document.getElementById('datePicker').value) {
+                        agenten = data.agenten;
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.log('Kon opgeslagen data niet laden:', e);
+            }
+            return false;
+        }
+        
+        // Datum selector functionaliteit
+        function setupDatePicker() {
+            const datePicker = document.getElementById('datePicker');
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            
+            // Stel minimale datum in op vandaag
+            datePicker.min = today.toISOString().split('T')[0];
+            
+            // Standaard waarde is morgen
+            datePicker.value = tomorrow.toISOString().split('T')[0];
+            
+            datePicker.addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const formattedDate = selectedDate.toLocaleDateString('nl-NL', options);
+                
+                // Vraag of wijzigingen opgeslagen moeten worden
+                if (editMode) {
+                    if (confirm('Je hebt niet-opgeslagen wijzigingen. Wil je deze eerst opslaan voordat je van datum wisselt?')) {
+                        document.getElementById('saveBtn').click();
+                    }
+                }
+                
+                // Laad data voor nieuwe datum (hier: reset voor demo)
+                if (!loadSavedData()) {
+                    // Reset naar standaard voor nieuwe datum
+                    agenten.forEach(agent => {
+                        agent.pauzes = Array(35).fill("werk");
+                    });
+                }
+                
+                buildTable();
+                editMode = false;
+                updateEditModeIndicator();
+            });
+        }
+        
+        // Legend klik functionaliteit (om actieve status te wijzigen)
+        function setupLegendClick() {
+            const legendItems = document.querySelectorAll('.legend-item');
+            const activeStatusLabel = document.getElementById('activeStatusLabel');
+            
+            legendItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const status = this.dataset.status;
+                    activeStatus = status;
+                    
+                    // Update label
+                    activeStatusLabel.textContent = statusConfig[status].fullLabel;
+                    
+                    // Highlight geselecteerde legenda item
+                    legendItems.forEach(li => {
+                        li.style.backgroundColor = '';
+                        li.style.boxShadow = '';
+                    });
+                    
+                    this.style.backgroundColor = '#e3f2fd';
+                    this.style.boxShadow = '0 0 0 2px rgba(52, 152, 219, 0.3)';
+                    
+                    // Toon edit mode indicator
+                    editMode = true;
+                    updateEditModeIndicator();
+                });
+            });
+            
+            // Standaard selecteer "werk"
+            document.querySelector('.legend-item[data-status="werk"]').click();
+        }
+        
+        // Compact modus toggle
+        document.getElementById('compactToggle').addEventListener('click', function() {
+            compactMode = !compactMode;
+            this.innerHTML = compactMode ? 
+                '<i class="fas fa-compress"></i> Compact' : 
+                '<i class="fas fa-expand"></i> Uitgebreid';
+            buildTable();
+        });
+        
+        // Update edit mode indicator
+        function updateEditModeIndicator() {
+            const indicator = document.getElementById('editModeIndicator');
+            if (editMode) {
+                indicator.style.display = 'block';
+            } else {
+                indicator.style.display = 'none';
+            }
+        }
+        
+        // Update laatste wijziging
+        function updateLastModified() {
+            lastModified = new Date();
+            const formattedTime = lastModified.toLocaleTimeString('nl-NL', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            document.getElementById('lastModified').textContent = formattedTime;
+        }
+        
+        // Agent count updaten
+        function updateAgentCount(count = agenten.length) {
+            document.getElementById('agentCount').textContent = count;
+        }
+        
+        // Initialisatie
+        document.addEventListener('DOMContentLoaded', function() {
+            // Laad opgeslagen data voor vandaag
+            loadSavedData();
+            
+            buildTable();
+            setupFilters();
+            setupDatePicker();
+            setupAddAgentModal();
+            setupBulkEditModal();
+            setupLegendClick();
+            setupExportFunctionality();
+            
+            // Sluit context menu bij klik elders
+            document.addEventListener('click', closeContextMenu);
+            
+            // Update laatst gewijzigd tijd
+            updateLastModified();
+            
+            // Automatisch scroll naar huidige tijd
+            setTimeout(() => {
+                const now = new Date();
+                const currentHour = now.getHours();
+                if (currentHour >= 10 && currentHour <= 19) {
+                    const currentTime = `${currentHour.toString().padStart(2, '0')}:${now.getMinutes() < 30 ? '00' : '30'}`;
+                    const timeIndex = tijden.indexOf(currentTime);
+                    if (timeIndex !== -1) {
+                        const timeHeader = document.querySelectorAll('.time-header')[timeIndex];
+                        if (timeHeader) {
+                            timeHeader.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+                        }
+                    }
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
