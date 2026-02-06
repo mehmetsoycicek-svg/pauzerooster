@@ -789,6 +789,21 @@
                 font-size: 12px;
             }
         }
+        
+        .delete-agent-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 9px;
+            margin-left: 5px;
+        }
+        
+        .delete-agent-btn:hover {
+            background-color: #c0392b;
+        }
     </style>
 </head>
 <body>
@@ -836,13 +851,13 @@
                 </div>
                 
                 <div class="filter-buttons">
-                    <button class="filter-btn" data-filter="all">
+                    <button class="filter-btn active" data-filter="all" data-tab="klantenservice">
                         <i class="fas fa-users"></i> Alle
                     </button>
-                    <button class="filter-btn" data-filter="pauze">
+                    <button class="filter-btn" data-filter="pauze" data-tab="klantenservice">
                         <i class="fas fa-utensils"></i> Pauze
                     </button>
-                    <button class="filter-btn" data-filter="werk">
+                    <button class="filter-btn" data-filter="werk" data-tab="klantenservice">
                         <i class="fas fa-briefcase"></i> Werk
                     </button>
                 </div>
@@ -926,13 +941,13 @@
                 </div>
                 
                 <div class="filter-buttons">
-                    <button class="filter-btn" data-filter="all">
+                    <button class="filter-btn active" data-filter="all" data-tab="admin">
                         <i class="fas fa-users"></i> Alle
                     </button>
-                    <button class="filter-btn" data-filter="pauze">
+                    <button class="filter-btn" data-filter="pauze" data-tab="admin">
                         <i class="fas fa-utensils"></i> Pauze
                     </button>
-                    <button class="filter-btn" data-filter="werk">
+                    <button class="filter-btn" data-filter="werk" data-tab="admin">
                         <i class="fas fa-briefcase"></i> Werk
                     </button>
                 </div>
@@ -1355,14 +1370,22 @@
             clearSelection();
         }
         
-        // ===== TABEL FUNCTIES =====
+        // ===== TABEL FUNCTIES - GECORRIGEERD =====
         function buildTable(tabName) {
+            console.log(`Building table for: ${tabName}`, agenten[tabName]);
+            
             const roosterBody = document.getElementById(`roosterBody${capitalizeFirst(tabName)}`);
             const tableHead = document.querySelector(`#roosterTable${capitalizeFirst(tabName)} thead tr`);
             
-            if (!roosterBody) return;
+            if (!roosterBody) {
+                console.error(`Element roosterBody${capitalizeFirst(tabName)} not found!`);
+                return;
+            }
             
+            // Clear table header
             tableHead.innerHTML = '<th class="agent-header">Agent (eindtijd)</th>';
+            
+            // Add time headers
             tijden.forEach(tijd => {
                 const th = document.createElement('th');
                 th.className = 'time-header';
@@ -1370,9 +1393,27 @@
                 tableHead.appendChild(th);
             });
             
+            // Clear table body
             roosterBody.innerHTML = '';
-            const agents = agenten[tabName] || [];
             
+            // Get agents for this tab
+            const agents = agenten[tabName] || [];
+            console.log(`Agents for ${tabName}:`, agents.length);
+            
+            if (agents.length === 0) {
+                const emptyRow = document.createElement('tr');
+                const emptyCell = document.createElement('td');
+                emptyCell.colSpan = tijden.length + 1;
+                emptyCell.textContent = 'Geen agenten gevonden. Voeg er een toe met de "Agent" knop.';
+                emptyCell.style.textAlign = 'center';
+                emptyCell.style.padding = '20px';
+                emptyCell.style.color = '#999';
+                emptyRow.appendChild(emptyCell);
+                roosterBody.appendChild(emptyRow);
+                return;
+            }
+            
+            // Create rows for each agent
             agents.forEach((agent, agentIndex) => {
                 const row = document.createElement('tr');
                 row.className = 'agent-row';
@@ -1381,10 +1422,11 @@
                 row.dataset.agentNaam = agent.naam.toLowerCase();
                 row.dataset.tab = tabName;
                 
-                // Agent cel met eindtijd
+                // Agent cell with end time
                 const agentCell = document.createElement('td');
                 agentCell.className = 'agent-cell';
                 
+                // Checkbox for selection
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.className = 'agent-select';
@@ -1401,11 +1443,12 @@
                 
                 agentCell.appendChild(checkbox);
                 
+                // Agent info
                 const agentInfo = document.createElement('span');
                 agentInfo.innerHTML = `<span class="agent-id">${agent.id}</span> - ${agent.naam}`;
                 agentCell.appendChild(agentInfo);
                 
-                // Eindtijd editor
+                // End time editor
                 const endTimeDiv = document.createElement('div');
                 endTimeDiv.className = 'work-hours';
                 
@@ -1434,9 +1477,25 @@
                 endTimeDiv.appendChild(endTimeInput);
                 agentCell.appendChild(endTimeDiv);
                 
+                // Delete button for agent
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-agent-btn';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.title = 'Agent verwijderen';
+                deleteBtn.dataset.agentId = agent.id;
+                deleteBtn.dataset.tab = tabName;
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const agentId = this.dataset.agentId;
+                    const tab = this.dataset.tab;
+                    deleteAgentFromTab(agentId, tab);
+                });
+                
+                agentCell.appendChild(deleteBtn);
+                
                 row.appendChild(agentCell);
                 
-                // Tijd cellen
+                // Time cells
                 agent.pauzes.forEach((pauzeStatus, timeIndex) => {
                     if (timeIndex >= tijden.length) return;
                     
@@ -1444,7 +1503,7 @@
                     const tijd = tijden[timeIndex];
                     const eindTijd = agent.eindTijd || "19:00";
                     
-                    // Bepaal of dit binnen werktijd valt
+                    // Determine if this is within working hours
                     const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, eindTijd);
                     let status = pauzeStatus || 'geen';
                     
@@ -1469,11 +1528,11 @@
                         td.appendChild(label);
                     }
                     
-                    // Klik events
+                    // Click events
                     td.addEventListener('mousedown', function(e) {
-                        if (e.button === 2) { // Rechtermuisknop
+                        if (e.button === 2) { // Right mouse button
                             startSelection(e, this);
-                        } else if (e.button === 0) { // Linkermuisknop
+                        } else if (e.button === 0) { // Left mouse button
                             if (!isSelecting) {
                                 updateCellStatus(this, activeStatus);
                             }
@@ -1528,7 +1587,7 @@
             
             const eindTijd = agent.eindTijd || "19:00";
             
-            // Update alle cellen voor deze agent
+            // Update all cells for this agent
             for (let timeIndex = 0; timeIndex < tijden.length; timeIndex++) {
                 const tijd = tijden[timeIndex];
                 const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, eindTijd);
@@ -1560,21 +1619,32 @@
             }
         }
         
+        // ===== AGENT VERWIJDEREN FUNCTIE =====
+        function deleteAgentFromTab(agentId, tabName) {
+            if (confirm(`Weet je zeker dat je agent ${agentId} wilt verwijderen?`)) {
+                const agentIndex = agenten[tabName].findIndex(a => a.id === agentId);
+                if (agentIndex !== -1) {
+                    agenten[tabName].splice(agentIndex, 1);
+                    buildTable(tabName);
+                    editMode = true;
+                    updateEditModeIndicator();
+                    updateLastModified();
+                }
+            }
+        }
+        
         // ===== SELECTIE FUNCTIES =====
         function setupSelectionEvents(tabName) {
-            const tableContainer = document.getElementById(`tableContainer${capitalizeFirst(tabName)}`);
             const dragSelection = document.getElementById('dragSelection');
             
-            if (!tableContainer) return;
-            
-            // Stop selectie bij loslaten van muis
+            // Stop selection when releasing mouse
             document.addEventListener('mouseup', function(e) {
                 if (isSelecting && e.button === 2) {
                     endSelection();
                 }
             });
             
-            // Update selectie tijdens slepen
+            // Update selection while dragging
             document.addEventListener('mousemove', function(e) {
                 if (isSelecting && selectionStart && dragSelectionRect) {
                     const currentX = e.clientX;
@@ -1584,7 +1654,7 @@
                     const startX = rect.left;
                     const startY = rect.top;
                     
-                    // Update selectie rechthoek
+                    // Update selection rectangle
                     const left = Math.min(startX, currentX);
                     const top = Math.min(startY, currentY);
                     const width = Math.abs(currentX - startX);
@@ -1596,12 +1666,12 @@
                     dragSelection.style.height = height + 'px';
                     dragSelection.style.display = 'block';
                     
-                    // Update cel selectie
+                    // Update cell selection
                     updateSelectionFromRect(left, top, width, height);
                 }
             });
             
-            // Toepassen knop voor selectie
+            // Apply button for selection
             document.getElementById('applySelectionBtn').addEventListener('click', function() {
                 showSelectionContextMenu();
             });
@@ -1615,7 +1685,7 @@
                 y: e.clientY
             };
             
-            // Maak selectie rechthoek
+            // Create selection rectangle
             const dragSelection = document.getElementById('dragSelection');
             dragSelection.style.left = e.clientX + 'px';
             dragSelection.style.top = e.clientY + 'px';
@@ -1624,11 +1694,11 @@
             dragSelection.style.display = 'block';
             dragSelectionRect = dragSelection;
             
-            // Clear vorige selectie
+            // Clear previous selection
             clearSelection();
             updateSelection(startCell);
             
-            // Voorkom context menu
+            // Prevent context menu
             e.preventDefault();
         }
         
@@ -1640,7 +1710,7 @@
             const tabName = cell.dataset.tab;
             const cellId = `cell-${tabName}-${agentIndex}-${timeIndex}`;
             
-            // Alleen cellen binnen werktijd selecteren
+            // Only select cells within working hours
             if (cell.dataset.status !== 'buiten') {
                 if (!selectedCells.has(cellId)) {
                     selectedCells.add(cellId);
@@ -1652,13 +1722,13 @@
         }
         
         function updateSelectionFromRect(left, top, width, height) {
-            // Clear vorige selectie
+            // Clear previous selection
             selectedCells.clear();
             document.querySelectorAll('.color-selected').forEach(cell => {
                 cell.classList.remove('color-selected');
             });
             
-            // Selecteer cellen binnen de rechthoek
+            // Select cells within the rectangle
             const allCells = document.querySelectorAll(`td[data-tab="${currentTab}"][data-agent-index][data-time-index]`);
             allCells.forEach(cell => {
                 const rect = cell.getBoundingClientRect();
@@ -1667,7 +1737,7 @@
                 const cellTop = rect.top;
                 const cellBottom = rect.bottom;
                 
-                // Check of cel overlapt met selectie rechthoek
+                // Check if cell overlaps with selection rectangle
                 const overlaps = !(cellRight < left || cellLeft > left + width || 
                                   cellBottom < top || cellTop > top + height);
                 
@@ -1693,7 +1763,7 @@
             dragSelection.style.display = 'none';
             dragSelectionRect = null;
             
-            // Toon selectie info als er cellen zijn geselecteerd
+            // Show selection info if there are selected cells
             if (selectedCells.size > 0) {
                 document.getElementById('selectionInfo').style.display = 'block';
             }
@@ -1735,7 +1805,7 @@
                 contextMenu.style.left = e.clientX + 'px';
                 contextMenu.style.top = e.clientY + 'px';
             } else {
-                // Toon in het midden van het scherm
+                // Show in the center of the screen
                 contextMenu.style.left = '50%';
                 contextMenu.style.top = '50%';
                 contextMenu.style.transform = 'translate(-50%, -50%)';
@@ -1743,7 +1813,7 @@
             
             contextMenu.style.display = 'block';
             
-            // Klik events voor menu items
+            // Click events for menu items
             const menuItems = contextMenu.querySelectorAll('.context-menu-item');
             menuItems.forEach(item => {
                 item.onclick = function() {
@@ -1807,7 +1877,7 @@
             const timeIndex = parseInt(cell.dataset.timeIndex);
             const tabName = cell.dataset.tab;
             
-            // Controleer of dit binnen werktijd valt
+            // Check if this is within working hours
             const agent = agenten[tabName][agentIndex];
             const tijd = tijden[timeIndex];
             const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, agent.eindTijd || "19:00");
@@ -1854,7 +1924,7 @@
                 leaveModal.style.display = 'flex';
             });
             
-            // Verlof type selectie
+            // Leave type selection
             leaveOptions.forEach(option => {
                 option.addEventListener('click', function() {
                     leaveOptions.forEach(opt => opt.classList.remove('active'));
@@ -1937,7 +2007,7 @@
                 alert(`${selectedAgents.length} agent(en) gepland als ${statusConfig[leaveType].fullLabel} van ${startDate} tot ${endDate}`);
             });
             
-            // Agent select in verlof modal
+            // Agent select in leave modal
             document.getElementById('leaveAgentSelect').addEventListener('click', function(e) {
                 if (e.target.closest('.agent-select-item')) {
                     const item = e.target.closest('.agent-select-item');
@@ -1981,28 +2051,26 @@
         
         function setupFilters() {
             // Setup filters for each tab
-            ['Klant', 'Admin'].forEach(tab => {
-                const searchInput = document.getElementById(`searchInput${tab}`);
+            ['klantenservice', 'admin'].forEach(tabName => {
+                const searchInput = document.getElementById(`searchInput${capitalizeFirst(tabName)}`);
                 if (searchInput) {
                     searchInput.addEventListener('input', () => {
                         const searchTerm = searchInput.value.toLowerCase();
-                        filterRows(tab.toLowerCase(), 'search', searchTerm);
+                        filterRows(tabName, 'search', searchTerm);
                     });
                 }
                 
-                const filterButtons = document.querySelectorAll(`#${tab.toLowerCase()}Tab .filter-btn`);
+                const filterButtons = document.querySelectorAll(`#${tabName}Tab .filter-btn`);
                 filterButtons.forEach(button => {
                     button.addEventListener('click', () => {
+                        // Remove active from all buttons in this tab
                         filterButtons.forEach(btn => btn.classList.remove('active'));
+                        // Add active to clicked button
                         button.classList.add('active');
-                        filterRows(tab.toLowerCase(), button.dataset.filter);
+                        
+                        filterRows(tabName, button.dataset.filter);
                     });
                 });
-                
-                // Set first filter as active
-                if (filterButtons.length > 0) {
-                    filterButtons[0].classList.add('active');
-                }
             });
         }
         
@@ -2121,6 +2189,9 @@
                 if (tab !== currentTab) {
                     switchTab(tab);
                 }
+                
+                // Show success message
+                alert(`Agent ${newId} - ${newName} toegevoegd aan ${tab === 'klantenservice' ? 'Klantenservice' : 'Administratie'}`);
             });
         }
         
@@ -2169,7 +2240,7 @@
                     if (tab === currentBulkEditTab) {
                         const agentIndex = agenten[tab].findIndex(a => a.id === agentId);
                         if (agentIndex !== -1) {
-                            // Update alleen binnen werktijd
+                            // Update only within working hours
                             for (let i = 0; i < agenten[tab][agentIndex].pauzes.length; i++) {
                                 const tijd = tijden[i];
                                 const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, agenten[tab][agentIndex].eindTijd || "19:00");
@@ -2187,11 +2258,13 @@
                 document.querySelectorAll('.agent-select').forEach(cb => {
                     cb.checked = false;
                 });
+                
+                alert(`Status ${statusConfig[selectedBulkStatus].fullLabel} toegepast op ${selectedAgents.size} agent(en)`);
             });
         }
         
         function updateBulkEditButton() {
-            // Update bulk edit button text if needed
+            // Can update bulk edit button text if needed
         }
         
         function setupLegendClick() {
@@ -2279,7 +2352,7 @@
             header.appendChild(subtitle);
             exportContainer.appendChild(header);
             
-            // Klantenservice tabel
+            // Klantenservice table
             if (exportKlant) {
                 const klantHeader = document.createElement('h3');
                 klantHeader.textContent = 'Klantenservice';
@@ -2293,7 +2366,7 @@
                 exportContainer.appendChild(tableCloneKlant);
             }
             
-            // Admin tabel
+            // Admin table
             if (exportAdmin) {
                 const adminHeader = document.createElement('h3');
                 adminHeader.textContent = 'Administratie';
@@ -2378,7 +2451,7 @@
         }
         
         function prepareTableForExport(table) {
-            table.querySelectorAll('.agent-select, .agent-actions, .work-hours-input').forEach(el => el.remove());
+            table.querySelectorAll('.agent-select, .agent-actions, .work-hours-input, .delete-agent-btn').forEach(el => el.remove());
             table.style.width = '100%';
             table.style.fontSize = '11px';
             table.style.borderCollapse = 'collapse';
@@ -2478,7 +2551,28 @@
                 const saved = localStorage.getItem('pauzerooster_data');
                 if (saved) {
                     const data = JSON.parse(saved);
-                    return data;
+                    // Check if data has the new structure
+                    if (data.agenten && data.agenten.klantenservice && data.agenten.admin) {
+                        return data;
+                    } else if (data.agenten && Array.isArray(data.agenten)) {
+                        // Old format - convert to new format
+                        const oldAgents = data.agenten;
+                        const newAgents = {
+                            klantenservice: [],
+                            admin: []
+                        };
+                        
+                        oldAgents.forEach(agent => {
+                            if (agent.id.startsWith('KS') || agent.id.startsWith('240')) {
+                                newAgents.klantenservice.push(agent);
+                            } else if (agent.id.startsWith('AD')) {
+                                newAgents.admin.push(agent);
+                            }
+                        });
+                        
+                        data.agenten = newAgents;
+                        return data;
+                    }
                 }
             } catch (e) {
                 console.error('LocalStorage laad fout:', e);
@@ -2494,6 +2588,7 @@
                 buildTable('admin');
                 updateLastModified();
             } else {
+                // Use default data
                 buildTable('klantenservice');
                 buildTable('admin');
             }
@@ -2501,6 +2596,8 @@
         
         // ===== INITIALISATIE =====
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing application...');
+            
             // Load data
             loadData();
             
@@ -2572,6 +2669,8 @@
                     clearSelection();
                 }
             });
+            
+            console.log('Application initialized successfully');
         });
     </script>
 </body>
