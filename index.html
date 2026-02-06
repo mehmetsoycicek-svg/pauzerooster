@@ -1283,6 +1283,56 @@
         </div>
     </div>
 
+    <!-- Modal voor Agent Verwijderen -->
+    <div class="modal" id="deleteAgentModal">
+        <div class="modal-content">
+            <h2><i class="fas fa-user-minus"></i> Agent Verwijderen</h2>
+            <div class="form-group">
+                <label for="deleteAgentSelect">Selecteer Agent:</label>
+                <select id="deleteAgentSelect">
+                    <option value="">-- Selecteer agent --</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Verwijderingstype:</label>
+                <div style="display: flex; gap: 10px; margin-top: 8px;">
+                    <label style="display: flex; align-items: center; gap: 5px;">
+                        <input type="radio" name="deleteType" value="today" checked> Alleen vandaag
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 5px;">
+                        <input type="radio" name="deleteType" value="date_range"> Datumbereik
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 5px;">
+                        <input type="radio" name="deleteType" value="permanent"> Permanent
+                    </label>
+                </div>
+            </div>
+            
+            <div id="deleteDateRange" style="display: none;">
+                <div class="form-group">
+                    <label for="deleteStartDate">Van datum:</label>
+                    <input type="date" id="deleteStartDate" value="2024-04-15">
+                </div>
+                
+                <div class="form-group">
+                    <label for="deleteEndDate">Tot datum:</label>
+                    <input type="date" id="deleteEndDate" value="2024-04-15">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="deleteReason">Reden (optioneel):</label>
+                                <textarea id="deleteReason" rows="2" placeholder="Bijv. Uit dienst, Verlof..."></textarea>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-secondary" id="cancelDeleteAgent">Annuleren</button>
+                <button class="modal-btn modal-btn-primary" id="confirmDeleteAgent">Verwijderen</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ===== BASIS CONFIGURATIE =====
         const tijden = [
@@ -1305,26 +1355,29 @@
         };
         
         // ===== GLOBALE VARIABELEN =====
-        let agenten = {
+        let alleAgenten = {
             klantenservice: [
-                { id: "KS2401", naam: "Gülden Sahin", eindTijd: "19:00", pauzes: Array(35).fill("werk") },
-                { id: "KS2402", naam: "Alex de Klein", eindTijd: "17:00", pauzes: Array(35).fill("werk") },
-                { id: "KS2404", naam: "Ilona de Winter", eindTijd: "16:00", pauzes: Array(35).fill("werk") },
-                { id: "KS2406", naam: "Hira Kara", eindTijd: "19:00", pauzes: Array(35).fill("werk") },
-                { id: "KS2407", naam: "Fatima Millet", eindTijd: "18:00", pauzes: Array(35).fill("werk") },
-                { id: "KS2422", naam: "Merve Eltun", eindTijd: "15:00", pauzes: Array(35).fill("werk") },
-                { id: "KS2425", naam: "Hatice Aygun", eindTijd: "19:00", pauzes: Array(35).fill("werk") },
-                { id: "KS2444", naam: "Nurhan Hasancebi", eindTijd: "17:30", pauzes: Array(35).fill("werk") }
+                { id: "KS2401", naam: "Gülden Sahin", isActive: true, startDate: "2024-01-01", endDate: null },
+                { id: "KS2402", naam: "Alex de Klein", isActive: true, startDate: "2024-01-01", endDate: null },
+                { id: "KS2404", naam: "Ilona de Winter", isActive: true, startDate: "2024-01-01", endDate: null },
+                { id: "KS2406", naam: "Hira Kara", isActive: true, startDate: "2024-01-01", endDate: null },
+                { id: "KS2407", naam: "Fatima Millet", isActive: true, startDate: "2024-01-01", endDate: null },
+                { id: "KS2422", naam: "Merve Eltun", isActive: true, startDate: "2024-01-01", endDate: null },
+                { id: "KS2425", naam: "Hatice Aygun", isActive: true, startDate: "2024-01-01", endDate: null },
+                { id: "KS2444", naam: "Nurhan Hasancebi", isActive: true, startDate: "2024-01-01", endDate: null }
             ],
             admin: [
-                { id: "AD2454", naam: "Melek Uz", eindTijd: "16:30", pauzes: Array(35).fill("werk") },
-                { id: "AD2483", naam: "Fadime Erbil", eindTijd: "18:30", pauzes: Array(35).fill("werk") },
-                { id: "AD2423", naam: "Eva Verbeek", eindTijd: "19:00", pauzes: Array(35).fill("werk") },
-                { id: "AD2409", naam: "Nathalie de Witte", eindTijd: "14:00", pauzes: Array(35).fill("werk") },
-                { id: "AD2411", naam: "Aslihan Ücüncü", eindTijd: "19:00", pauzes: Array(35).fill("werk") },
-                { id: "AD2479", naam: "Kezban Egilmez", eindTijd: "17:00", pauzes: Array(35).fill("werk") }
+                { id: "AD2454", naam: "Melek Uz", isActive: true, startDate: "2024-01-01", endDate: null },
+                { id: "AD2483", naam: "Fadime Erbil", isActive: true, startDate: "2024-01-01", endDate: null },
+                { id: "AD2423", naam: "Eva Verbeek", isActive: true, startDate: "2024-01-01", endDate: null },
+                { id: "AD2409", naam: "Nathalie de Witte", isActive: true, startDate: "2024-01-01", endDate: null },
+                { id: "AD2411", naam: "Aslihan Ücüncü", isActive: true, startDate: "2024-01-01", endDate: null },
+                { id: "AD2479", naam: "Kezban Egilmez", isActive: true, startDate: "2024-01-01", endDate: null }
             ]
         };
+        
+        // Dynamische data per datum
+        let roosterData = {}; // key: "YYYY-MM-DD", value: { klantenservice: [...], admin: [...] }
         
         let activeStatus = "werk";
         let selectedAgents = new Set();
@@ -1338,6 +1391,95 @@
         let selectedCells = new Set();
         let dragSelectionRect = null;
         let currentBulkEditTab = "klantenservice";
+        
+        // ===== HELPER FUNCTIES =====
+        function capitalizeFirst(string) {
+            if (!string) return '';
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        
+        function getTabElementId(tabName, elementType) {
+            // Special case for "klantenservice" -> "Klantenservice" for element IDs
+            const tabId = tabName === 'klantenservice' ? 'Klantenservice' : capitalizeFirst(tabName);
+            return `${elementType}${tabId}`;
+        }
+        
+        function tijdNaarMinuten(t) {
+            const [uren, minuten] = t.split(':').map(Number);
+            return uren * 60 + minuten;
+        }
+        
+        function isTijdBinnenWerkTijd(tijd, eindTijd) {
+            const startTijd = "10:00";
+            const tijdMin = tijdNaarMinuten(tijd);
+            const startMin = tijdNaarMinuten(startTijd);
+            const eindMin = tijdNaarMinuten(eindTijd);
+            
+            return tijdMin >= startMin && tijdMin < eindMin;
+        }
+        
+        // ===== DATUM BEHEER FUNCTIES =====
+        function getCurrentDate() {
+            return document.getElementById('datePicker').value;
+        }
+        
+        function getActiveAgentsForDate(date) {
+            // Get all active agents for this date
+            const activeAgents = {
+                klantenservice: [],
+                admin: []
+            };
+            
+            // Filter agents based on their active period
+            ['klantenservice', 'admin'].forEach(tabName => {
+                alleAgenten[tabName].forEach(agent => {
+                    // Check if agent is active for this date
+                    const agentStart = new Date(agent.startDate || "2024-01-01");
+                    const agentEnd = agent.endDate ? new Date(agent.endDate) : null;
+                    const currentDate = new Date(date);
+                    
+                    const isActive = (agent.isActive === undefined || agent.isActive) && 
+                                     currentDate >= agentStart && 
+                                     (!agentEnd || currentDate <= agentEnd);
+                    
+                    if (isActive) {
+                        // Clone the agent for this date
+                        const agentClone = {
+                            id: agent.id,
+                            naam: agent.naam,
+                            eindTijd: "19:00", // Default end time
+                            pauzes: Array(35).fill("werk"), // Default all work
+                            isActive: true,
+                            startDate: agent.startDate || "2024-01-01",
+                            endDate: agent.endDate
+                        };
+                        
+                        // Check if we have saved data for this agent on this date
+                        if (roosterData[date] && roosterData[date][tabName]) {
+                            const savedAgent = roosterData[date][tabName].find(a => a.id === agent.id);
+                            if (savedAgent) {
+                                agentClone.eindTijd = savedAgent.eindTijd || "19:00";
+                                agentClone.pauzes = savedAgent.pauzes || Array(35).fill("werk");
+                            }
+                        }
+                        
+                        activeAgents[tabName].push(agentClone);
+                    }
+                });
+            });
+            
+            return activeAgents;
+        }
+        
+        function saveRoosterForDate(date) {
+            if (!roosterData[date]) {
+                roosterData[date] = { klantenservice: [], admin: [] };
+            }
+            
+            // Save current state to roosterData
+            const agentsForDate = getActiveAgentsForDate(date);
+            roosterData[date] = agentsForDate;
+        }
         
         // ===== TAB FUNCTIES =====
         function setupTabs() {
@@ -1372,13 +1514,20 @@
         
         // ===== TABEL FUNCTIES - GECORRIGEERD =====
         function buildTable(tabName) {
-            console.log(`Building table for: ${tabName}`, agenten[tabName]);
+            const currentDate = getCurrentDate();
+            const activeAgents = getActiveAgentsForDate(currentDate);
             
-            const roosterBody = document.getElementById(`roosterBody${capitalizeFirst(tabName)}`);
-            const tableHead = document.querySelector(`#roosterTable${capitalizeFirst(tabName)} thead tr`);
+            // Gebruik de juiste ID voor het rooster body element
+            const roosterBodyId = getTabElementId(tabName, 'roosterBody');
+            const roosterBody = document.getElementById(roosterBodyId);
+            const tableId = getTabElementId(tabName, 'roosterTable');
+            const tableHead = document.querySelector(`#${tableId} thead tr`);
+            
+            console.log(`Building table for: ${tabName}, using ID: ${roosterBodyId}`);
             
             if (!roosterBody) {
-                console.error(`Element roosterBody${capitalizeFirst(tabName)} not found!`);
+                console.error(`Element ${roosterBodyId} not found!`);
+                console.log('Available IDs:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
                 return;
             }
             
@@ -1397,8 +1546,7 @@
             roosterBody.innerHTML = '';
             
             // Get agents for this tab
-            const agents = agenten[tabName] || [];
-            console.log(`Agents for ${tabName}:`, agents.length);
+            const agents = activeAgents[tabName] || [];
             
             if (agents.length === 0) {
                 const emptyRow = document.createElement('tr');
@@ -1410,6 +1558,7 @@
                 emptyCell.style.color = '#999';
                 emptyRow.appendChild(emptyCell);
                 roosterBody.appendChild(emptyRow);
+                updateAgentCounts();
                 return;
             }
             
@@ -1445,7 +1594,20 @@
                 
                 // Agent info
                 const agentInfo = document.createElement('span');
-                agentInfo.innerHTML = `<span class="agent-id">${agent.id}</span> - ${agent.naam}`;
+                
+                // Add active/inactive indicator
+                const statusSpan = document.createElement('span');
+                statusSpan.className = agent.isActive ? 'agent-status-active' : 'agent-status-inactive';
+                statusSpan.textContent = agent.isActive ? ' ✓ ' : ' ✗ ';
+                statusSpan.title = agent.isActive ? 'Actief' : 'Inactief';
+                
+                agentInfo.appendChild(statusSpan);
+                
+                // Agent ID and name
+                const agentText = document.createElement('span');
+                agentText.innerHTML = `<span class="agent-id">${agent.id}</span> - ${agent.naam}`;
+                agentInfo.appendChild(agentText);
+                
                 agentCell.appendChild(agentInfo);
                 
                 // End time editor
@@ -1458,37 +1620,66 @@
                 endTimeInput.value = agent.eindTijd || "19:00";
                 endTimeInput.min = "10:15";
                 endTimeInput.max = "23:59";
-                endTimeInput.dataset.agentIndex = agentIndex;
+                endTimeInput.dataset.agentId = agent.id;
                 endTimeInput.dataset.tab = tabName;
                 
                 endTimeInput.addEventListener('change', function() {
-                    const idx = parseInt(this.dataset.agentIndex);
+                    const agentId = this.dataset.agentId;
                     const tab = this.dataset.tab;
-                    if (agenten[tab] && agenten[tab][idx]) {
-                        agenten[tab][idx].eindTijd = this.value;
-                        updateRowForEndTime(idx, tab);
-                        editMode = true;
-                        updateEditModeIndicator();
-                        updateLastModified();
+                    const currentDate = getCurrentDate();
+                    
+                    // Ensure roosterData exists for current date
+                    if (!roosterData[currentDate]) {
+                        roosterData[currentDate] = { klantenservice: [], admin: [] };
                     }
+                    if (!roosterData[currentDate][tab]) {
+                        roosterData[currentDate][tab] = [];
+                    }
+                    
+                    // Find or create agent in roosterData
+                    let agentIndex = roosterData[currentDate][tab].findIndex(a => a.id === agentId);
+                    if (agentIndex === -1) {
+                        // Create new entry
+                        const baseAgent = alleAgenten[tab].find(a => a.id === agentId);
+                        if (baseAgent) {
+                            roosterData[currentDate][tab].push({
+                                id: agentId,
+                                naam: agent.naam,
+                                eindTijd: this.value,
+                                pauzes: Array(35).fill("werk"),
+                                isActive: true
+                            });
+                            agentIndex = roosterData[currentDate][tab].length - 1;
+                        }
+                    } else {
+                        // Update existing entry
+                        roosterData[currentDate][tab][agentIndex].eindTijd = this.value;
+                    }
+                    
+                    editMode = true;
+                    updateEditModeIndicator();
+                    updateLastModified();
+                    
+                    // Rebuild the row
+                    updateRowForEndTime(agentId, tab);
                 });
                 
                 endTimeDiv.appendChild(document.createTextNode('Eind: '));
                 endTimeDiv.appendChild(endTimeInput);
                 agentCell.appendChild(endTimeDiv);
                 
-                // Delete button for agent
+                // Delete button for agent (only for this day)
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'delete-agent-btn';
-                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-                deleteBtn.title = 'Agent verwijderen';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Dag';
+                deleteBtn.title = 'Verwijder agent voor vandaag';
                 deleteBtn.dataset.agentId = agent.id;
                 deleteBtn.dataset.tab = tabName;
                 deleteBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const agentId = this.dataset.agentId;
                     const tab = this.dataset.tab;
-                    deleteAgentFromTab(agentId, tab);
+                    showDeleteAgentModal(agentId, tab, 'today');
                 });
                 
                 agentCell.appendChild(deleteBtn);
@@ -1516,10 +1707,10 @@
                     td.className = config.color;
                     td.dataset.status = status;
                     td.dataset.timeIndex = timeIndex;
-                    td.dataset.agentIndex = agentIndex;
+                    td.dataset.agentId = agent.id;
                     td.dataset.tijd = tijd;
                     td.dataset.tab = tabName;
-                    td.dataset.cellId = `cell-${tabName}-${agentIndex}-${timeIndex}`;
+                    td.dataset.cellId = `cell-${tabName}-${agent.id}-${timeIndex}`;
                     
                     if (status !== 'geen' && status !== 'buiten') {
                         const label = document.createElement('div');
@@ -1563,35 +1754,21 @@
             setupSelectionEvents(tabName);
         }
         
-        function capitalizeFirst(string) {
-            return string.charAt(0).toUpperCase() + string.slice(1);
-        }
-        
-        function isTijdBinnenWerkTijd(tijd, eindTijd) {
-            function tijdNaarMinuten(t) {
-                const [uren, minuten] = t.split(':').map(Number);
-                return uren * 60 + minuten;
-            }
+        function updateRowForEndTime(agentId, tabName) {
+            const currentDate = getCurrentDate();
+            if (!roosterData[currentDate] || !roosterData[currentDate][tabName]) return;
             
-            const startTijd = "10:00";
-            const tijdMin = tijdNaarMinuten(tijd);
-            const startMin = tijdNaarMinuten(startTijd);
-            const eindMin = tijdNaarMinuten(eindTijd);
+            const agentIndex = roosterData[currentDate][tabName].findIndex(a => a.id === agentId);
+            if (agentIndex === -1) return;
             
-            return tijdMin >= startMin && tijdMin < eindMin;
-        }
-        
-        function updateRowForEndTime(agentIndex, tabName) {
-            const agent = agenten[tabName][agentIndex];
-            if (!agent) return;
-            
+            const agent = roosterData[currentDate][tabName][agentIndex];
             const eindTijd = agent.eindTijd || "19:00";
             
             // Update all cells for this agent
             for (let timeIndex = 0; timeIndex < tijden.length; timeIndex++) {
                 const tijd = tijden[timeIndex];
                 const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, eindTijd);
-                const cell = document.querySelector(`td[data-tab="${tabName}"][data-agent-index="${agentIndex}"][data-time-index="${timeIndex}"]`);
+                const cell = document.querySelector(`td[data-tab="${tabName}"][data-agent-id="${agentId}"][data-time-index="${timeIndex}"]`);
                 
                 if (cell) {
                     let status = agent.pauzes[timeIndex] || 'geen';
@@ -1619,32 +1796,240 @@
             }
         }
         
-        // ===== AGENT VERWIJDEREN FUNCTIE =====
-        function deleteAgentFromTab(agentId, tabName) {
-            if (confirm(`Weet je zeker dat je agent ${agentId} wilt verwijderen?`)) {
-                const agentIndex = agenten[tabName].findIndex(a => a.id === agentId);
-                if (agentIndex !== -1) {
-                    agenten[tabName].splice(agentIndex, 1);
+        // ===== AGENT VERWIJDEREN FUNCTIES =====
+        function setupDeleteAgentModal() {
+            const deleteAgentModal = document.getElementById('deleteAgentModal');
+            const cancelDeleteAgent = document.getElementById('cancelDeleteAgent');
+            const confirmDeleteAgent = document.getElementById('confirmDeleteAgent');
+            const deleteTypeRadios = document.querySelectorAll('input[name="deleteType"]');
+            
+            // Show/hide date range based on radio selection
+            deleteTypeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const dateRangeDiv = document.getElementById('deleteDateRange');
+                    if (this.value === 'date_range') {
+                        dateRangeDiv.style.display = 'block';
+                    } else {
+                        dateRangeDiv.style.display = 'none';
+                    }
+                });
+            });
+            
+            cancelDeleteAgent.addEventListener('click', function() {
+                deleteAgentModal.style.display = 'none';
+            });
+            
+            confirmDeleteAgent.addEventListener('click', function() {
+                const agentId = document.getElementById('deleteAgentSelect').value;
+                const deleteType = document.querySelector('input[name="deleteType"]:checked').value;
+                const reason = document.getElementById('deleteReason').value;
+                
+                if (!agentId) {
+                    alert('Selecteer een agent');
+                    return;
+                }
+                
+                // Find which tab the agent belongs to
+                let tabName = '';
+                ['klantenservice', 'admin'].forEach(tab => {
+                    if (alleAgenten[tab].some(a => a.id === agentId)) {
+                        tabName = tab;
+                    }
+                });
+                
+                if (!tabName) {
+                    alert('Agent niet gevonden');
+                    return;
+                }
+                
+                if (deleteType === 'today') {
+                    // Remove agent for today only
+                    const currentDate = getCurrentDate();
+                    if (roosterData[currentDate] && roosterData[currentDate][tabName]) {
+                        roosterData[currentDate][tabName] = roosterData[currentDate][tabName].filter(a => a.id !== agentId);
+                    }
+                    
+                    // Rebuild table
                     buildTable(tabName);
-                    editMode = true;
-                    updateEditModeIndicator();
-                    updateLastModified();
+                    
+                    alert(`Agent ${agentId} verwijderd voor vandaag (${currentDate})`);
+                    
+                } else if (deleteType === 'date_range') {
+                    // Remove agent for date range
+                    const startDate = document.getElementById('deleteStartDate').value;
+                    const endDate = document.getElementById('deleteEndDate').value;
+                    
+                    if (!startDate || !endDate) {
+                        alert('Vul beide datums in');
+                        return;
+                    }
+                    
+                    // Loop through all dates in range
+                    const start = new Date(startDate);
+                    const end = new Date(endDate);
+                    const current = new Date(start);
+                    
+                    let removedCount = 0;
+                    while (current <= end) {
+                        const dateStr = current.toISOString().split('T')[0];
+                        
+                        if (roosterData[dateStr] && roosterData[dateStr][tabName]) {
+                            const before = roosterData[dateStr][tabName].length;
+                            roosterData[dateStr][tabName] = roosterData[dateStr][tabName].filter(a => a.id !== agentId);
+                            const after = roosterData[dateStr][tabName].length;
+                            if (before > after) removedCount++;
+                        }
+                        
+                        current.setDate(current.getDate() + 1);
+                    }
+                    
+                    // Rebuild current table if affected
+                    const currentDate = getCurrentDate();
+                    const currentDateObj = new Date(currentDate);
+                    if (currentDateObj >= start && currentDateObj <= end) {
+                        buildTable(tabName);
+                    }
+                    
+                    alert(`Agent ${agentId} verwijderd voor ${removedCount} dagen (${startDate} tot ${endDate})`);
+                    
+                } else if (deleteType === 'permanent') {
+                    // Mark agent as inactive
+                    const agentIndex = alleAgenten[tabName].findIndex(a => a.id === agentId);
+                    if (agentIndex !== -1) {
+                        alleAgenten[tabName][agentIndex].isActive = false;
+                        alleAgenten[tabName][agentIndex].endDate = getCurrentDate();
+                        
+                        // Also remove from current date's rooster
+                        const currentDate = getCurrentDate();
+                        if (roosterData[currentDate] && roosterData[currentDate][tabName]) {
+                            roosterData[currentDate][tabName] = roosterData[currentDate][tabName].filter(a => a.id !== agentId);
+                        }
+                        
+                        buildTable(tabName);
+                        alert(`Agent ${agentId} permanent verwijderd (gemarkeerd als inactief)`);
+                    }
+                }
+                
+                // Save changes
+                saveToLocalStorage();
+                deleteAgentModal.style.display = 'none';
+            });
+        }
+        
+        function populateDeleteAgentSelect() {
+            const select = document.getElementById('deleteAgentSelect');
+            select.innerHTML = '<option value="">-- Selecteer agent --</option>';
+            
+            // Add all active agents
+            ['klantenservice', 'admin'].forEach(tabName => {
+                alleAgenten[tabName].forEach(agent => {
+                    if (agent.isActive !== false) {
+                        const option = document.createElement('option');
+                        option.value = agent.id;
+                        option.textContent = `${agent.id} - ${agent.naam} (${tabName === 'klantenservice' ? 'Klantenservice' : 'Admin'})`;
+                        select.appendChild(option);
+                    }
+                });
+            });
+        }
+        
+        function showDeleteAgentModal(agentId = '', tabName = '', deleteType = '') {
+            populateDeleteAgentSelect();
+            
+            if (agentId) {
+                document.getElementById('deleteAgentSelect').value = agentId;
+            }
+            
+            if (deleteType) {
+                document.querySelector(`input[name="deleteType"][value="${deleteType}"]`).checked = true;
+                if (deleteType === 'date_range') {
+                    document.getElementById('deleteDateRange').style.display = 'block';
+                    document.getElementById('deleteStartDate').value = getCurrentDate();
+                    document.getElementById('deleteEndDate').value = getCurrentDate();
                 }
             }
+            
+            document.getElementById('deleteReason').value = '';
+            document.getElementById('deleteAgentModal').style.display = 'flex';
+        }
+        
+        // ===== CEL BEWERKING =====
+        function updateCellStatus(cell, newStatus) {
+            if (!cell.dataset.agentId || !cell.dataset.timeIndex || !cell.dataset.tab) return;
+            
+            const agentId = cell.dataset.agentId;
+            const timeIndex = parseInt(cell.dataset.timeIndex);
+            const tabName = cell.dataset.tab;
+            const currentDate = getCurrentDate();
+            
+            // Ensure roosterData exists
+            if (!roosterData[currentDate]) {
+                roosterData[currentDate] = { klantenservice: [], admin: [] };
+            }
+            if (!roosterData[currentDate][tabName]) {
+                roosterData[currentDate][tabName] = [];
+            }
+            
+            // Find or create agent in roosterData
+            let agentIndex = roosterData[currentDate][tabName].findIndex(a => a.id === agentId);
+            if (agentIndex === -1) {
+                // Create new entry
+                const baseAgent = alleAgenten[tabName].find(a => a.id === agentId);
+                if (baseAgent) {
+                    roosterData[currentDate][tabName].push({
+                        id: agentId,
+                        naam: baseAgent.naam,
+                        eindTijd: "19:00",
+                        pauzes: Array(35).fill("werk"),
+                        isActive: true
+                    });
+                    agentIndex = roosterData[currentDate][tabName].length - 1;
+                } else {
+                    return; // Agent not found
+                }
+            }
+            
+            const agent = roosterData[currentDate][tabName][agentIndex];
+            const tijd = tijden[timeIndex];
+            const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, agent.eindTijd || "19:00");
+            
+            if (!isBinnenWerkTijd) {
+                alert('Deze tijd valt buiten de werktijden van deze agent');
+                return;
+            }
+            
+            // Update the status
+            roosterData[currentDate][tabName][agentIndex].pauzes[timeIndex] = newStatus;
+            
+            const config = statusConfig[newStatus];
+            cell.className = config.color;
+            cell.dataset.status = newStatus;
+            
+            if (newStatus === 'geen') {
+                cell.innerHTML = '';
+            } else {
+                const label = document.createElement('div');
+                label.className = 'cell-label';
+                label.textContent = config.label;
+                cell.innerHTML = '';
+                cell.appendChild(label);
+            }
+            
+            editMode = true;
+            updateEditModeIndicator();
+            updateLastModified();
         }
         
         // ===== SELECTIE FUNCTIES =====
         function setupSelectionEvents(tabName) {
             const dragSelection = document.getElementById('dragSelection');
             
-            // Stop selection when releasing mouse
             document.addEventListener('mouseup', function(e) {
                 if (isSelecting && e.button === 2) {
                     endSelection();
                 }
             });
             
-            // Update selection while dragging
             document.addEventListener('mousemove', function(e) {
                 if (isSelecting && selectionStart && dragSelectionRect) {
                     const currentX = e.clientX;
@@ -1654,7 +2039,6 @@
                     const startX = rect.left;
                     const startY = rect.top;
                     
-                    // Update selection rectangle
                     const left = Math.min(startX, currentX);
                     const top = Math.min(startY, currentY);
                     const width = Math.abs(currentX - startX);
@@ -1666,12 +2050,10 @@
                     dragSelection.style.height = height + 'px';
                     dragSelection.style.display = 'block';
                     
-                    // Update cell selection
                     updateSelectionFromRect(left, top, width, height);
                 }
             });
             
-            // Apply button for selection
             document.getElementById('applySelectionBtn').addEventListener('click', function() {
                 showSelectionContextMenu();
             });
@@ -1685,7 +2067,6 @@
                 y: e.clientY
             };
             
-            // Create selection rectangle
             const dragSelection = document.getElementById('dragSelection');
             dragSelection.style.left = e.clientX + 'px';
             dragSelection.style.top = e.clientY + 'px';
@@ -1694,23 +2075,20 @@
             dragSelection.style.display = 'block';
             dragSelectionRect = dragSelection;
             
-            // Clear previous selection
             clearSelection();
             updateSelection(startCell);
             
-            // Prevent context menu
             e.preventDefault();
         }
         
         function updateSelection(cell) {
             if (!cell) return;
             
-            const agentIndex = parseInt(cell.dataset.agentIndex);
+            const agentId = cell.dataset.agentId;
             const timeIndex = parseInt(cell.dataset.timeIndex);
             const tabName = cell.dataset.tab;
-            const cellId = `cell-${tabName}-${agentIndex}-${timeIndex}`;
+            const cellId = `cell-${tabName}-${agentId}-${timeIndex}`;
             
-            // Only select cells within working hours
             if (cell.dataset.status !== 'buiten') {
                 if (!selectedCells.has(cellId)) {
                     selectedCells.add(cellId);
@@ -1722,14 +2100,12 @@
         }
         
         function updateSelectionFromRect(left, top, width, height) {
-            // Clear previous selection
             selectedCells.clear();
             document.querySelectorAll('.color-selected').forEach(cell => {
                 cell.classList.remove('color-selected');
             });
             
-            // Select cells within the rectangle
-            const allCells = document.querySelectorAll(`td[data-tab="${currentTab}"][data-agent-index][data-time-index]`);
+            const allCells = document.querySelectorAll(`td[data-tab="${currentTab}"][data-agent-id][data-time-index]`);
             allCells.forEach(cell => {
                 const rect = cell.getBoundingClientRect();
                 const cellLeft = rect.left;
@@ -1737,15 +2113,14 @@
                 const cellTop = rect.top;
                 const cellBottom = rect.bottom;
                 
-                // Check if cell overlaps with selection rectangle
                 const overlaps = !(cellRight < left || cellLeft > left + width || 
                                   cellBottom < top || cellTop > top + height);
                 
                 if (overlaps && cell.dataset.status !== 'buiten') {
-                    const agentIndex = parseInt(cell.dataset.agentIndex);
+                    const agentId = cell.dataset.agentId;
                     const timeIndex = parseInt(cell.dataset.timeIndex);
                     const tabName = cell.dataset.tab;
-                    const cellId = `cell-${tabName}-${agentIndex}-${timeIndex}`;
+                    const cellId = `cell-${tabName}-${agentId}-${timeIndex}`;
                     
                     selectedCells.add(cellId);
                     cell.classList.add('color-selected');
@@ -1763,7 +2138,6 @@
             dragSelection.style.display = 'none';
             dragSelectionRect = null;
             
-            // Show selection info if there are selected cells
             if (selectedCells.size > 0) {
                 document.getElementById('selectionInfo').style.display = 'block';
             }
@@ -1783,13 +2157,15 @@
         }
         
         function applyStatusToSelectedCells(status) {
+            const currentDate = getCurrentDate();
+            
             selectedCells.forEach(cellId => {
                 const parts = cellId.split('-');
                 const tabName = parts[1];
-                const agentIndex = parseInt(parts[2]);
+                const agentId = parts[2];
                 const timeIndex = parseInt(parts[3]);
                 
-                const cell = document.querySelector(`td[data-tab="${tabName}"][data-agent-index="${agentIndex}"][data-time-index="${timeIndex}"]`);
+                const cell = document.querySelector(`td[data-tab="${tabName}"][data-agent-id="${agentId}"][data-time-index="${timeIndex}"]`);
                 if (cell && cell.dataset.status !== 'buiten') {
                     updateCellStatus(cell, status);
                 }
@@ -1805,7 +2181,6 @@
                 contextMenu.style.left = e.clientX + 'px';
                 contextMenu.style.top = e.clientY + 'px';
             } else {
-                // Show in the center of the screen
                 contextMenu.style.left = '50%';
                 contextMenu.style.top = '50%';
                 contextMenu.style.transform = 'translate(-50%, -50%)';
@@ -1813,7 +2188,6 @@
             
             contextMenu.style.display = 'block';
             
-            // Click events for menu items
             const menuItems = contextMenu.querySelectorAll('.context-menu-item');
             menuItems.forEach(item => {
                 item.onclick = function() {
@@ -1847,7 +2221,7 @@
             contextMenu.style.display = 'block';
             
             contextMenu.dataset.selectedCell = JSON.stringify({
-                agentIndex: cell.dataset.agentIndex,
+                agentId: cell.dataset.agentId,
                 timeIndex: cell.dataset.timeIndex,
                 tab: cell.dataset.tab
             });
@@ -1869,46 +2243,6 @@
             }, 10);
         }
         
-        // ===== CEL BEWERKING =====
-        function updateCellStatus(cell, newStatus) {
-            if (!cell.dataset.agentIndex || !cell.dataset.timeIndex || !cell.dataset.tab) return;
-            
-            const agentIndex = parseInt(cell.dataset.agentIndex);
-            const timeIndex = parseInt(cell.dataset.timeIndex);
-            const tabName = cell.dataset.tab;
-            
-            // Check if this is within working hours
-            const agent = agenten[tabName][agentIndex];
-            const tijd = tijden[timeIndex];
-            const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, agent.eindTijd || "19:00");
-            
-            if (!isBinnenWerkTijd) {
-                alert('Deze tijd valt buiten de werktijden van deze agent');
-                return;
-            }
-            
-            if (agentIndex >= 0 && timeIndex >= 0 && agenten[tabName] && agenten[tabName][agentIndex]) {
-                agenten[tabName][agentIndex].pauzes[timeIndex] = newStatus;
-                const config = statusConfig[newStatus];
-                cell.className = config.color;
-                cell.dataset.status = newStatus;
-                
-                if (newStatus === 'geen') {
-                    cell.innerHTML = '';
-                } else {
-                    const label = document.createElement('div');
-                    label.className = 'cell-label';
-                    label.textContent = config.label;
-                    cell.innerHTML = '';
-                    cell.appendChild(label);
-                }
-                
-                editMode = true;
-                updateEditModeIndicator();
-                updateLastModified();
-            }
-        }
-        
         // ===== VERLOF MODAL FUNCTIES =====
         function setupLeaveModal() {
             const leaveBtn = document.getElementById('leaveBtn');
@@ -1919,12 +2253,11 @@
             
             leaveBtn.addEventListener('click', function() {
                 populateAgentSelectList();
-                document.getElementById('leaveStartDate').value = document.getElementById('datePicker').value;
-                document.getElementById('leaveEndDate').value = document.getElementById('datePicker').value;
+                document.getElementById('leaveStartDate').value = getCurrentDate();
+                document.getElementById('leaveEndDate').value = getCurrentDate();
                 leaveModal.style.display = 'flex';
             });
             
-            // Leave type selection
             leaveOptions.forEach(option => {
                 option.addEventListener('click', function() {
                     leaveOptions.forEach(opt => opt.classList.remove('active'));
@@ -1944,7 +2277,6 @@
                 const endTime = document.getElementById('leaveEndTime').value;
                 const reason = document.getElementById('leaveReason').value;
                 
-                // Get selected agents
                 const selectedAgents = Array.from(document.querySelectorAll('#leaveAgentSelect .agent-select-item.selected'));
                 
                 if (selectedAgents.length === 0) {
@@ -1952,59 +2284,86 @@
                     return;
                 }
                 
-                // Convert dates to Date objects
+                // Convert dates
                 const startDateObj = new Date(startDate);
                 const endDateObj = new Date(endDate);
                 
-                // Apply leave to each selected agent
                 selectedAgents.forEach(agentItem => {
                     const agentId = agentItem.dataset.agentId;
                     const tabName = agentItem.dataset.tab;
                     
-                    // Find agent in data
-                    const agentIndex = agenten[tabName].findIndex(a => a.id === agentId);
-                    if (agentIndex !== -1) {
-                        // Loop through each date in the range
-                        const currentDate = new Date(startDateObj);
-                        while (currentDate <= endDateObj) {
-                            const dateStr = currentDate.toISOString().split('T')[0];
-                            
-                            // Only apply if it's the selected date in the date picker
-                            if (dateStr === document.getElementById('datePicker').value) {
-                                // Apply to all time slots for this date
-                                for (let i = 0; i < agenten[tabName][agentIndex].pauzes.length; i++) {
-                                    const tijd = tijden[i];
-                                    const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, agenten[tabName][agentIndex].eindTijd || "19:00");
-                                    
-                                    // Apply time constraints if specified
-                                    let applyLeave = true;
-                                    if (startTime && endTime) {
-                                        const tijdMin = tijdNaarMinuten(tijd);
-                                        const startMin = tijdNaarMinuten(startTime);
-                                        const endMin = tijdNaarMinuten(endTime);
-                                        applyLeave = tijdMin >= startMin && tijdMin < endMin;
-                                    }
-                                    
-                                    if (isBinnenWerkTijd && applyLeave) {
-                                        agenten[tabName][agentIndex].pauzes[i] = leaveType;
-                                    }
+                    // Loop through each date in the range
+                    const currentDate = new Date(startDateObj);
+                    while (currentDate <= endDateObj) {
+                        const dateStr = currentDate.toISOString().split('T')[0];
+                        
+                        // Ensure roosterData exists for this date
+                        if (!roosterData[dateStr]) {
+                            roosterData[dateStr] = {
+                                klantenservice: [],
+                                admin: []
+                            };
+                        }
+                        
+                        // Find or create agent entry for this date
+                        let agentIndex = roosterData[dateStr][tabName].findIndex(a => a.id === agentId);
+                        if (agentIndex === -1) {
+                            // Create new entry
+                            const baseAgent = alleAgenten[tabName].find(a => a.id === agentId);
+                            if (baseAgent && (baseAgent.isActive !== false)) {
+                                const newAgent = {
+                                    id: agentId,
+                                    naam: baseAgent.naam,
+                                    eindTijd: "19:00",
+                                    pauzes: Array(35).fill("werk"),
+                                    isActive: true
+                                };
+                                roosterData[dateStr][tabName].push(newAgent);
+                                agentIndex = roosterData[dateStr][tabName].length - 1;
+                            }
+                        }
+                        
+                        if (agentIndex !== -1) {
+                            // Apply leave to time slots
+                            for (let i = 0; i < roosterData[dateStr][tabName][agentIndex].pauzes.length; i++) {
+                                const tijd = tijden[i];
+                                const agentEndTime = roosterData[dateStr][tabName][agentIndex].eindTijd || "19:00";
+                                const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, agentEndTime);
+                                
+                                let applyLeave = true;
+                                if (startTime && endTime) {
+                                    const tijdMin = tijdNaarMinuten(tijd);
+                                    const startMin = tijdNaarMinuten(startTime);
+                                    const endMin = tijdNaarMinuten(endTime);
+                                    applyLeave = tijdMin >= startMin && tijdMin < endMin;
+                                }
+                                
+                                if (isBinnenWerkTijd && applyLeave) {
+                                    roosterData[dateStr][tabName][agentIndex].pauzes[i] = leaveType;
                                 }
                             }
-                            
-                            currentDate.setDate(currentDate.getDate() + 1);
                         }
+                        
+                        currentDate.setDate(currentDate.getDate() + 1);
                     }
                 });
                 
-                // Rebuild tables
-                buildTable('klantenservice');
-                buildTable('admin');
+                // Rebuild current date if affected
+                const currentDate = getCurrentDate();
+                const currentDateObj = new Date(currentDate);
+                if (currentDateObj >= startDateObj && currentDateObj <= endDateObj) {
+                    buildTable('klantenservice');
+                    buildTable('admin');
+                }
                 
                 // Close modal
                 leaveModal.style.display = 'none';
                 
                 // Show confirmation
                 alert(`${selectedAgents.length} agent(en) gepland als ${statusConfig[leaveType].fullLabel} van ${startDate} tot ${endDate}`);
+                
+                // Save changes
+                saveToLocalStorage();
             });
             
             // Agent select in leave modal
@@ -2020,37 +2379,36 @@
             const container = document.getElementById('leaveAgentSelect');
             container.innerHTML = '';
             
-            // Add agents from both tabs
+            // Add active agents from both tabs
             ['klantenservice', 'admin'].forEach(tabName => {
-                agenten[tabName].forEach(agent => {
-                    const item = document.createElement('div');
-                    item.className = 'agent-select-item';
-                    item.dataset.agentId = agent.id;
-                    item.dataset.tab = tabName;
-                    item.innerHTML = `
-                        <input type="checkbox" style="pointer-events: none;">
-                        <span>${agent.id} - ${agent.naam} (${tabName === 'klantenservice' ? 'Klantenservice' : 'Admin'})</span>
-                    `;
-                    container.appendChild(item);
+                alleAgenten[tabName].forEach(agent => {
+                    if (agent.isActive !== false) {
+                        const item = document.createElement('div');
+                        item.className = 'agent-select-item';
+                        item.dataset.agentId = agent.id;
+                        item.dataset.tab = tabName;
+                        item.innerHTML = `
+                            <input type="checkbox" style="pointer-events: none;">
+                            <span>${agent.id} - ${agent.naam} (${tabName === 'klantenservice' ? 'Klantenservice' : 'Admin'})</span>
+                        `;
+                        container.appendChild(item);
+                    }
                 });
             });
         }
         
-        function tijdNaarMinuten(t) {
-            const [uren, minuten] = t.split(':').map(Number);
-            return uren * 60 + minuten;
-        }
-        
         // ===== OVERIGE FUNCTIES =====
         function updateAgentCounts() {
-            const klantCount = agenten.klantenservice.length;
-            const adminCount = agenten.admin.length;
+            const currentDate = getCurrentDate();
+            const activeAgents = getActiveAgentsForDate(currentDate);
+            
+            const klantCount = activeAgents.klantenservice.length;
+            const adminCount = activeAgents.admin.length;
             document.getElementById('agentCountKlant').textContent = klantCount;
             document.getElementById('agentCountAdmin').textContent = adminCount;
         }
         
         function setupFilters() {
-            // Setup filters for each tab
             ['klantenservice', 'admin'].forEach(tabName => {
                 const searchInput = document.getElementById(`searchInput${capitalizeFirst(tabName)}`);
                 if (searchInput) {
@@ -2063,9 +2421,7 @@
                 const filterButtons = document.querySelectorAll(`#${tabName}Tab .filter-btn`);
                 filterButtons.forEach(button => {
                     button.addEventListener('click', () => {
-                        // Remove active from all buttons in this tab
                         filterButtons.forEach(btn => btn.classList.remove('active'));
-                        // Add active to clicked button
                         button.classList.add('active');
                         
                         filterRows(tabName, button.dataset.filter);
@@ -2132,7 +2488,7 @@
                     
                     // Generate new ID
                     let maxId = 2400;
-                    agenten[tab].forEach(agent => {
+                    alleAgenten[tab].forEach(agent => {
                         const idNum = parseInt(agent.id.replace(/[^\d]/g, ''));
                         if (idNum > maxId) maxId = idNum;
                     });
@@ -2161,10 +2517,10 @@
                     return;
                 }
                 
-                // Check if ID already exists in any tab
+                // Check if ID already exists
                 let idExists = false;
-                Object.keys(agenten).forEach(t => {
-                    if (agenten[t].some(agent => agent.id === newId)) {
+                Object.keys(alleAgenten).forEach(t => {
+                    if (alleAgenten[t].some(agent => agent.id === newId)) {
                         idExists = true;
                     }
                 });
@@ -2174,14 +2530,31 @@
                     return;
                 }
                 
+                // Add to alleAgenten
                 const newAgent = {
                     id: newId,
                     naam: newName,
-                    eindTijd: endTime,
-                    pauzes: Array(35).fill(defaultStatus)
+                    isActive: true,
+                    startDate: getCurrentDate(),
+                    endDate: null
                 };
                 
-                agenten[tab].push(newAgent);
+                alleAgenten[tab].push(newAgent);
+                
+                // Add to current date's rooster
+                const currentDate = getCurrentDate();
+                if (!roosterData[currentDate]) {
+                    roosterData[currentDate] = { klantenservice: [], admin: [] };
+                }
+                
+                roosterData[currentDate][tab].push({
+                    id: newId,
+                    naam: newName,
+                    eindTijd: endTime,
+                    pauzes: Array(35).fill(defaultStatus),
+                    isActive: true
+                });
+                
                 buildTable(tab);
                 addAgentModal.style.display = 'none';
                 
@@ -2190,7 +2563,9 @@
                     switchTab(tab);
                 }
                 
-                // Show success message
+                // Save changes
+                saveToLocalStorage();
+                
                 alert(`Agent ${newId} - ${newName} toegevoegd aan ${tab === 'klantenservice' ? 'Klantenservice' : 'Administratie'}`);
             });
         }
@@ -2235,17 +2610,21 @@
             });
             
             confirmBulkEdit.addEventListener('click', function() {
+                const currentDate = getCurrentDate();
+                
                 selectedAgents.forEach(agentKey => {
                     const [tab, agentId] = agentKey.split('-');
                     if (tab === currentBulkEditTab) {
-                        const agentIndex = agenten[tab].findIndex(a => a.id === agentId);
-                        if (agentIndex !== -1) {
-                            // Update only within working hours
-                            for (let i = 0; i < agenten[tab][agentIndex].pauzes.length; i++) {
-                                const tijd = tijden[i];
-                                const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, agenten[tab][agentIndex].eindTijd || "19:00");
-                                if (isBinnenWerkTijd) {
-                                    agenten[tab][agentIndex].pauzes[i] = selectedBulkStatus;
+                        if (roosterData[currentDate] && roosterData[currentDate][tab]) {
+                            const agentIndex = roosterData[currentDate][tab].findIndex(a => a.id === agentId);
+                            if (agentIndex !== -1) {
+                                const agent = roosterData[currentDate][tab][agentIndex];
+                                for (let i = 0; i < agent.pauzes.length; i++) {
+                                    const tijd = tijden[i];
+                                    const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, agent.eindTijd || "19:00");
+                                    if (isBinnenWerkTijd) {
+                                        agent.pauzes[i] = selectedBulkStatus;
+                                    }
                                 }
                             }
                         }
@@ -2259,12 +2638,15 @@
                     cb.checked = false;
                 });
                 
+                // Save changes
+                saveToLocalStorage();
+                
                 alert(`Status ${statusConfig[selectedBulkStatus].fullLabel} toegepast op ${selectedAgents.size} agent(en)`);
             });
         }
         
         function updateBulkEditButton() {
-            // Can update bulk edit button text if needed
+            // Optional: Update button text or style
         }
         
         function setupLegendClick() {
@@ -2282,7 +2664,7 @@
                     updateEditModeIndicator();
                 });
             });
-            // Set default active status
+            
             if (legendItems.length > 0) {
                 document.querySelector('.legend-item[data-status="werk"]').click();
             }
@@ -2334,7 +2716,7 @@
             header.style.paddingBottom = '8px';
             
             const title = document.createElement('h2');
-            title.textContent = `Pauzerooster - ${document.getElementById('datePicker').value}`;
+            title.textContent = `Pauzerooster - ${getCurrentDate()}`;
             title.style.color = '#2c3e50';
             title.style.margin = '0 0 3px 0';
             title.style.fontSize = '18px';
@@ -2361,7 +2743,7 @@
                 klantHeader.style.fontSize = '16px';
                 exportContainer.appendChild(klantHeader);
                 
-                const tableCloneKlant = document.getElementById('roosterTableKlant').cloneNode(true);
+                const tableCloneKlant = document.getElementById('roosterTableKlantenservice').cloneNode(true);
                 prepareTableForExport(tableCloneKlant);
                 exportContainer.appendChild(tableCloneKlant);
             }
@@ -2417,37 +2799,41 @@
             
             document.body.appendChild(exportContainer);
             
-            html2canvas(exportContainer, {
-                scale: 2,
-                backgroundColor: '#ffffff',
-                useCORS: true,
-                logging: false
-            }).then(canvas => {
-                document.body.removeChild(exportContainer);
-                const preview = document.getElementById('exportPreview');
-                preview.innerHTML = '';
-                const img = document.createElement('img');
-                img.src = canvas.toDataURL('image/png');
-                img.alt = 'Rooster export';
-                img.style.maxWidth = '100%';
-                preview.appendChild(img);
-                
-                // Create download link
-                const downloadLink = document.createElement('a');
-                downloadLink.href = canvas.toDataURL('image/png');
-                const tabsStr = (exportKlant ? 'klant' : '') + (exportAdmin ? 'admin' : '');
-                downloadLink.download = `rooster-${document.getElementById('datePicker').value}-${tabsStr}.png`;
-                downloadLink.textContent = 'Klik hier om te downloaden';
-                downloadLink.style.display = 'block';
-                downloadLink.style.marginTop = '8px';
-                downloadLink.style.fontSize = '12px';
-                downloadLink.style.color = '#3498db';
-                preview.appendChild(downloadLink);
-            }).catch(error => {
-                console.error('Fout bij genereren afbeelding:', error);
-                document.getElementById('exportPreview').innerHTML = 
-                    '<p style="color: red; font-size: 12px;">Fout bij genereren afbeelding. Probeer het opnieuw.</p>';
-            });
+            // Use html2canvas from CDN
+            if (typeof html2canvas !== 'undefined') {
+                html2canvas(exportContainer, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    useCORS: true,
+                    logging: false
+                }).then(canvas => {
+                    document.body.removeChild(exportContainer);
+                    const preview = document.getElementById('exportPreview');
+                    preview.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = canvas.toDataURL('image/png');
+                    img.alt = 'Rooster export';
+                    img.style.maxWidth = '100%';
+                    preview.appendChild(img);
+                    
+                    // Create download link
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = canvas.toDataURL('image/png');
+                    const tabsStr = (exportKlant ? 'klant' : '') + (exportAdmin ? 'admin' : '');
+                    downloadLink.download = `rooster-${getCurrentDate()}-${tabsStr}.png`;
+                    downloadLink.textContent = 'Klik hier om te downloaden';
+                    downloadLink.style.display = 'block';
+                    downloadLink.style.marginTop = '8px';
+                    downloadLink.style.color = '#3498db';
+                    preview.appendChild(downloadLink);
+                }).catch(error => {
+                    console.error('Fout bij genereren afbeelding:', error);
+                    document.getElementById('exportPreview').innerHTML = 
+                        '<p style="color: red; font-size: 12px;">Fout bij genereren afbeelding. Probeer het opnieuw.</p>';
+                });
+            } else {
+                alert('HTML2Canvas bibliotheek niet geladen. Controleer je internetverbinding.');
+            }
         }
         
         function prepareTableForExport(table) {
@@ -2483,13 +2869,7 @@
             datePicker.value = tomorrow.toISOString().split('T')[0];
             
             datePicker.addEventListener('change', function() {
-                const selectedDate = new Date(this.value);
-                const formattedDate = selectedDate.toLocaleDateString('nl-NL', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                });
+                const selectedDate = this.value;
                 
                 if (editMode) {
                     if (confirm('Je hebt niet-opgeslagen wijzigingen. Wil je deze eerst opslaan voordat je van datum wisselt?')) {
@@ -2497,7 +2877,13 @@
                     }
                 }
                 
-                loadData();
+                // Save current rooster before switching
+                saveRoosterForDate(getCurrentDate());
+                
+                // Build tables for new date
+                buildTable('klantenservice');
+                buildTable('admin');
+                
                 editMode = false;
                 updateEditModeIndicator();
             });
@@ -2524,19 +2910,27 @@
         // ===== OPSLAG FUNCTIES =====
         function saveToLocalStorage() {
             try {
-                const roosterData = {
-                    date: document.getElementById('datePicker').value,
-                    agenten: agenten,
+                // Save current date's data first
+                saveRoosterForDate(getCurrentDate());
+                
+                const roosterDataToSave = {
+                    version: "2.0",
+                    date: getCurrentDate(),
+                    alleAgenten: alleAgenten,
+                    roosterData: roosterData,
                     lastModified: new Date().toISOString()
                 };
                 
-                localStorage.setItem('pauzerooster_data', JSON.stringify(roosterData));
+                localStorage.setItem('pauzerooster_data', JSON.stringify(roosterDataToSave));
                 localStorage.setItem('pauzerooster_last_save', new Date().toISOString());
                 document.getElementById('syncStatus').innerHTML = '<i class="fas fa-hdd"></i><span>Opgeslagen</span>';
                 
                 setTimeout(() => {
                     document.getElementById('syncStatus').innerHTML = '<i class="fas fa-hdd"></i><span>Lokaal</span>';
                 }, 3000);
+                
+                editMode = false;
+                updateEditModeIndicator();
                 
                 return true;
             } catch (e) {
@@ -2551,27 +2945,70 @@
                 const saved = localStorage.getItem('pauzerooster_data');
                 if (saved) {
                     const data = JSON.parse(saved);
-                    // Check if data has the new structure
-                    if (data.agenten && data.agenten.klantenservice && data.agenten.admin) {
-                        return data;
-                    } else if (data.agenten && Array.isArray(data.agenten)) {
-                        // Old format - convert to new format
+                    
+                    // Handle version 2.0
+                    if (data.version === "2.0") {
+                        return {
+                            alleAgenten: data.alleAgenten || alleAgenten,
+                            roosterData: data.roosterData || {},
+                            date: data.date || getCurrentDate()
+                        };
+                    }
+                    // Handle old version (migrate)
+                    else if (data.agenten) {
+                        // Migrate old data to new format
                         const oldAgents = data.agenten;
-                        const newAgents = {
+                        const newAlleAgenten = {
                             klantenservice: [],
                             admin: []
                         };
                         
-                        oldAgents.forEach(agent => {
-                            if (agent.id.startsWith('KS') || agent.id.startsWith('240')) {
-                                newAgents.klantenservice.push(agent);
-                            } else if (agent.id.startsWith('AD')) {
-                                newAgents.admin.push(agent);
-                            }
-                        });
+                        const newRoosterData = {};
                         
-                        data.agenten = newAgents;
-                        return data;
+                        // Migrate agents
+                        if (Array.isArray(oldAgents)) {
+                            oldAgents.forEach(agent => {
+                                if (agent.id.startsWith('KS') || agent.id.startsWith('240')) {
+                                    newAlleAgenten.klantenservice.push({
+                                        id: agent.id,
+                                        naam: agent.naam,
+                                        isActive: true,
+                                        startDate: "2024-01-01",
+                                        endDate: null
+                                    });
+                                } else if (agent.id.startsWith('AD')) {
+                                    newAlleAgenten.admin.push({
+                                        id: agent.id,
+                                        naam: agent.naam,
+                                        isActive: true,
+                                        startDate: "2024-01-01",
+                                        endDate: null
+                                    });
+                                }
+                            });
+                        } else if (oldAgents.klantenservice && oldAgents.admin) {
+                            // Already in new format but without version
+                            newAlleAgenten.klantenservice = oldAgents.klantenservice.map(agent => ({
+                                id: agent.id,
+                                naam: agent.naam,
+                                isActive: true,
+                                startDate: "2024-01-01",
+                                endDate: null
+                            }));
+                            newAlleAgenten.admin = oldAgents.admin.map(agent => ({
+                                id: agent.id,
+                                naam: agent.naam,
+                                isActive: true,
+                                startDate: "2024-01-01",
+                                endDate: null
+                            }));
+                        }
+                        
+                        return {
+                            alleAgenten: newAlleAgenten,
+                            roosterData: {},
+                            date: data.date || getCurrentDate()
+                        };
                     }
                 }
             } catch (e) {
@@ -2582,16 +3019,28 @@
         
         function loadData() {
             const savedData = loadFromLocalStorage();
-            if (savedData && savedData.agenten && savedData.date === document.getElementById('datePicker').value) {
-                agenten = savedData.agenten;
-                buildTable('klantenservice');
-                buildTable('admin');
-                updateLastModified();
-            } else {
-                // Use default data
-                buildTable('klantenservice');
-                buildTable('admin');
+            
+            if (savedData) {
+                alleAgenten = savedData.alleAgenten || alleAgenten;
+                roosterData = savedData.roosterData || {};
+                
+                // Ensure all agents have isActive property
+                ['klantenservice', 'admin'].forEach(tabName => {
+                    alleAgenten[tabName].forEach(agent => {
+                        if (agent.isActive === undefined) {
+                            agent.isActive = true;
+                        }
+                        if (!agent.startDate) {
+                            agent.startDate = "2024-01-01";
+                        }
+                    });
+                });
             }
+            
+            // Build tables for current date
+            buildTable('klantenservice');
+            buildTable('admin');
+            updateLastModified();
         }
         
         // ===== INITIALISATIE =====
@@ -2612,6 +3061,20 @@
             setupLegendClick();
             setupExportFunctionality();
             setupLeaveModal();
+            setupDeleteAgentModal();
+            
+            // Add "Delete Agent" button to footer
+            const footer = document.querySelector('.footer-info');
+            const deleteAgentBtn = document.createElement('button');
+            deleteAgentBtn.className = 'action-btn btn-reset';
+            deleteAgentBtn.style.fontSize = '10px';
+            deleteAgentBtn.style.padding = '3px 8px';
+            deleteAgentBtn.style.marginLeft = '10px';
+            deleteAgentBtn.innerHTML = '<i class="fas fa-user-minus"></i> Verwijder Agent';
+            deleteAgentBtn.addEventListener('click', function() {
+                showDeleteAgentModal();
+            });
+            footer.appendChild(deleteAgentBtn);
             
             // Opslaan knop
             const saveBtn = document.getElementById('saveBtn');
@@ -2619,32 +3082,37 @@
                 saveBtn.addEventListener('click', function() {
                     const saved = saveToLocalStorage();
                     if (saved) {
-                        alert(`Rooster opgeslagen voor ${document.getElementById('datePicker').value}\n\nKlantenservice: ${agenten.klantenservice.length} agenten\nAdministratie: ${agenten.admin.length} agenten`);
+                        const currentDate = getCurrentDate();
+                        const activeAgents = getActiveAgentsForDate(currentDate);
+                        alert(`Rooster opgeslagen voor ${currentDate}\n\nKlantenservice: ${activeAgents.klantenservice.length} agenten\nAdministratie: ${activeAgents.admin.length} agenten`);
                     }
-                    editMode = false;
-                    updateEditModeIndicator();
                 });
             }
             
             // Reset knoppen
             document.querySelectorAll('.btn-reset').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const tab = this.dataset.tab || currentTab;
-                    if (confirm(`Weet je zeker dat je alle wijzigingen wilt resetten voor ${tab === 'klantenservice' ? 'Klantenservice' : 'Administratie'}?`)) {
-                        agenten[tab].forEach(agent => {
-                            for (let i = 0; i < agent.pauzes.length; i++) {
-                                const tijd = tijden[i];
-                                const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, agent.eindTijd || "19:00");
-                                if (isBinnenWerkTijd) {
-                                    agent.pauzes[i] = "werk";
-                                }
+                if (!btn.id && !btn.dataset.action) {
+                    btn.addEventListener('click', function() {
+                        const tab = this.dataset.tab || currentTab;
+                        if (confirm(`Weet je zeker dat je alle wijzigingen wilt resetten voor ${tab === 'klantenservice' ? 'Klantenservice' : 'Administratie'}?`)) {
+                            const currentDate = getCurrentDate();
+                            if (roosterData[currentDate] && roosterData[currentDate][tab]) {
+                                roosterData[currentDate][tab].forEach(agent => {
+                                    for (let i = 0; i < agent.pauzes.length; i++) {
+                                        const tijd = tijden[i];
+                                        const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, agent.eindTijd || "19:00");
+                                        if (isBinnenWerkTijd) {
+                                            agent.pauzes[i] = "werk";
+                                        }
+                                    }
+                                });
                             }
-                        });
-                        buildTable(tab);
-                        editMode = false;
-                        updateEditModeIndicator();
-                    }
-                });
+                            buildTable(tab);
+                            editMode = false;
+                            updateEditModeIndicator();
+                        }
+                    });
+                }
             });
             
             // Sluit modals bij klik buiten
