@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pauzerooster Agenten - Gedeelde Opslag</title>
+    <title>Pauzerooster Agenten - Werk tijden & Selectie</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -248,12 +248,20 @@
         .color-verlof { background-color: #a29bfe; }
         .color-ziek { background-color: #e74c3c; }
         .color-geen { background-color: #f8f9fa; border: 1px solid #ddd; }
+        .color-buiten { background-color: #f8f9fa; border: 1px solid #e0e0e0; }
+        .color-selected { 
+            background-color: #ffeb3b !important; 
+            box-shadow: inset 0 0 0 2px #ff9800;
+            position: relative;
+            z-index: 2;
+        }
         
         .table-container {
             overflow: auto;
             padding: 0 15px 15px;
             flex-grow: 1;
             height: 100%;
+            position: relative;
         }
         
         table {
@@ -261,6 +269,7 @@
             border-collapse: collapse;
             margin-top: 10px;
             font-size: 12px;
+            user-select: none;
         }
         
         th {
@@ -281,8 +290,8 @@
         }
         
         .agent-header {
-            min-width: 150px;
-            max-width: 150px;
+            min-width: 180px;
+            max-width: 180px;
             text-align: left;
             padding-left: 10px;
         }
@@ -296,6 +305,7 @@
             height: 28px;
             max-width: 50px;
             overflow: hidden;
+            position: relative;
         }
         
         .agent-cell {
@@ -306,8 +316,8 @@
             position: sticky;
             left: 0;
             z-index: 5;
-            min-width: 150px;
-            max-width: 150px;
+            min-width: 180px;
+            max-width: 180px;
             cursor: default;
             font-size: 12px;
         }
@@ -319,6 +329,7 @@
         .verlof { background-color: #a29bfe; color: white; font-weight: bold; }
         .ziek { background-color: #e74c3c; color: white; font-weight: bold; }
         .geen { background-color: #f8f9fa; }
+        .buiten { background-color: #f8f9fa; border: 1px solid #e0e0e0; }
         
         .cell-label {
             font-size: 10px;
@@ -359,6 +370,21 @@
         
         .agent-action-btn:hover {
             background-color: #f1f1f1;
+        }
+        
+        .work-hours {
+            font-size: 10px;
+            color: #666;
+            margin-left: 8px;
+            font-weight: normal;
+        }
+        
+        .work-hours-input {
+            width: 70px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            font-size: 11px;
         }
         
         .footer {
@@ -558,8 +584,8 @@
         }
         
         .compact-mode .agent-cell {
-            min-width: 140px;
-            max-width: 140px;
+            min-width: 160px;
+            max-width: 160px;
         }
         
         .compact-mode .time-header {
@@ -582,80 +608,48 @@
         .sync-error { background-color: #f8d7da; color: #721c24; }
         .sync-local { background-color: #e2e3e5; color: #383d41; }
         
-        .login-modal {
-            display: none;
+        .selection-info {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 3000;
-            align-items: center;
-            justify-content: center;
+            bottom: 20px;
+            right: 20px;
+            background-color: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            display: none;
         }
         
-        .login-content {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            max-width: 500px;
-            width: 90%;
+        .selection-count {
+            font-weight: bold;
+            margin: 0 5px;
         }
         
-        .api-instructions {
-            background-color: #e8f4fd;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            font-size: 13px;
-        }
-        
-        .api-instructions ol {
-            margin-left: 20px;
-            margin-top: 10px;
-        }
-        
-        .api-instructions li {
-            margin-bottom: 8px;
-        }
-        
-        .github-link {
-            color: #0366d6;
-            text-decoration: none;
+        .selection-apply-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 15px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 11px;
             font-weight: bold;
         }
         
-        .github-link:hover {
-            text-decoration: underline;
+        .selection-apply-btn:hover {
+            background-color: #219653;
         }
         
-        .token-input {
-            font-family: monospace;
-            font-size: 14px;
-        }
-        
-        .sync-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .sync-btn {
-            padding: 4px 10px;
-            border-radius: 4px;
-            border: none;
-            background-color: #3498db;
-            color: white;
-            cursor: pointer;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .sync-btn:hover {
-            background-color: #2980b9;
+        .drag-selection {
+            position: absolute;
+            background-color: rgba(52, 152, 219, 0.1);
+            border: 2px solid #3498db;
+            z-index: 1;
+            pointer-events: none;
+            display: none;
         }
         
         @media (max-width: 768px) {
@@ -665,9 +659,26 @@
                 align-items: flex-start;
             }
             
-            .sync-controls {
-                margin-top: 5px;
+            .selection-info {
+                bottom: 80px;
+                right: 10px;
+                font-size: 11px;
             }
+        }
+        
+        .edit-mode-indicator {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background-color: #f39c12;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            display: none;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -676,17 +687,24 @@
         <i class="fas fa-edit"></i> Bewerkmodus
     </div>
     
+    <div class="selection-info" id="selectionInfo">
+        <span><i class="fas fa-mouse-pointer"></i> Geselecteerd: <span class="selection-count" id="selectionCount">0</span> blokken</span>
+        <button class="selection-apply-btn" id="applySelectionBtn">Toepassen</button>
+    </div>
+    
+    <div class="drag-selection" id="dragSelection"></div>
+    
     <div class="container" id="mainContainer">
         <header>
             <div class="header-content">
                 <div>
                     <h1><i class="fas fa-clock"></i> Pauzerooster Agenten</h1>
-                    <p class="subtitle">Gedeelde opslag via GitHub</p>
+                    <p class="subtitle">Parttimers met flexibele werktijden</p>
                 </div>
                 <div class="date-selector">
                     <i class="fas fa-calendar-alt"></i>
                     <input type="date" id="datePicker" value="2024-04-15">
-                    <span>Dienst: 10:00-19:00</span>
+                    <span>Openingstijd: 10:00</span>
                 </div>
             </div>
         </header>
@@ -757,14 +775,18 @@
                     <div class="color-box color-ziek"></div>
                     <span>Ziek</span>
                 </div>
+                <div class="legend-item" data-status="buiten">
+                    <div class="color-box color-buiten"></div>
+                    <span>Buiten werktijd</span>
+                </div>
             </div>
         </div>
         
-        <div class="table-container">
+        <div class="table-container" id="tableContainer">
             <table id="roosterTable">
                 <thead>
                     <tr>
-                        <th class="agent-header">Agent</th>
+                        <th class="agent-header">Agent (eindtijd)</th>
                         <!-- Tijden worden hier ingevoegd via JavaScript -->
                     </tr>
                 </thead>
@@ -780,24 +802,57 @@
                     <i class="fas fa-sync-alt"></i> Laatst: <span id="lastModified">-</span> | 
                     Agenten: <span id="agentCount">16</span>
                 </div>
-                <div class="sync-status sync-pending" id="syncStatus">
-                    <i class="fas fa-sync-alt"></i>
-                    <span>Laden...</span>
+                <div class="sync-status sync-local" id="syncStatus">
+                    <i class="fas fa-hdd"></i>
+                    <span>Lokale opslag</span>
                 </div>
             </div>
-            <div class="sync-controls">
-                <button class="sync-btn" id="manualSyncBtn" title="Handmatig synchroniseren">
-                    <i class="fas fa-sync"></i> Sync
-                </button>
-                <button class="sync-btn" id="githubConfigBtn" title="GitHub instellingen">
-                    <i class="fab fa-github"></i> Config
-                </button>
+            <div style="font-size: 11px; color: #7f8c8d;">
+                <i class="fas fa-mouse-pointer"></i> Selectie: Rechtermuisknop + slepen
             </div>
         </div>
     </div>
     
-    <!-- Context Menu -->
-    <div class="context-menu" id="contextMenu">
+    <!-- Context Menu voor geselecteerde blokken -->
+    <div class="context-menu" id="selectionContextMenu">
+        <div class="context-menu-item" data-status="werk">
+            <div class="color-box color-werk"></div>
+            <span>Werk toewijzen</span>
+        </div>
+        <div class="context-menu-item" data-status="kort">
+            <div class="color-box color-kort"></div>
+            <span>Korte pauze toewijzen</span>
+        </div>
+        <div class="context-menu-item" data-status="lunch">
+            <div class="color-box color-lunch"></div>
+            <span>Lunch toewijzen</span>
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" data-status="ad-hoc">
+            <div class="color-box color-ad-hoc"></div>
+            <span>Ad-hoc Verlof toewijzen</span>
+        </div>
+        <div class="context-menu-item" data-status="verlof">
+            <div class="color-box color-verlof"></div>
+            <span>Verlof toewijzen</span>
+        </div>
+        <div class="context-menu-item" data-status="ziek">
+            <div class="color-box color-ziek"></div>
+            <span>Ziek toewijzen</span>
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" data-action="clear">
+            <div class="color-box color-geen"></div>
+            <span>Selectie leegmaken</span>
+        </div>
+        <div class="context-menu-item" data-action="deselect">
+            <i class="fas fa-times"></i>
+            <span>Deselecteer alle</span>
+        </div>
+    </div>
+    
+    <!-- Context Menu voor enkele cel -->
+    <div class="context-menu" id="cellContextMenu">
         <div class="context-menu-item" data-status="werk">
             <div class="color-box color-werk"></div>
             <span>Werk</span>
@@ -843,7 +898,12 @@
                 <input type="text" id="newAgentName" placeholder="Bijv. Jan Jansen">
             </div>
             <div class="form-group">
-                <label for="newAgentDefaultStatus">Standaard status:</label>
+                <label for="newAgentEndTime">Eindtijd (hh:mm):</label>
+                <input type="time" id="newAgentEndTime" value="19:00" min="10:15" max="23:59">
+                <small style="color: #666; font-size: 12px;">Tijd wanneer de agent stopt met werken</small>
+            </div>
+            <div class="form-group">
+                <label for="newAgentDefaultStatus">Standaard status binnen werktijd:</label>
                 <select id="newAgentDefaultStatus">
                     <option value="werk">Werk</option>
                     <option value="kort">Korte pauze</option>
@@ -920,58 +980,6 @@
             </div>
         </div>
     </div>
-    
-    <!-- Modal voor GitHub Config -->
-    <div class="login-modal" id="githubConfigModal">
-        <div class="modal-content">
-            <h2><i class="fab fa-github"></i> GitHub Opslag Instellen</h2>
-            <p>Configureer GitHub om wijzigingen voor iedereen op te slaan.</p>
-            
-            <div class="api-instructions">
-                <strong>Stap-voor-stap instructie:</strong>
-                <ol>
-                    <li>Ga naar <a href="https://github.com/settings/tokens" target="_blank" class="github-link">GitHub Tokens</a></li>
-                    <li>Klik op <strong>"Generate new token (classic)"</strong></li>
-                    <li>Geef een naam bijv. "Pauzerooster"</li>
-                    <li>Selecteer <strong>alleen "repo"</strong> scope (vinkje aan)</li>
-                    <li>Klik "Generate token" onderaan</li>
-                    <li><strong>Kopieer het token</strong> (dit zie je maar 1x!)</li>
-                </ol>
-            </div>
-            
-            <div class="form-group">
-                <label for="githubToken">GitHub Personal Access Token:</label>
-                <input type="password" id="githubToken" class="token-input" placeholder="ghp_abc123...">
-                <small style="color: #666; font-size: 12px;">Begint met "ghp_" of "github_pat_"</small>
-            </div>
-            
-            <div class="form-group">
-                <label for="repoName">Repository (gebruiker/repository):</label>
-                <input type="text" id="repoName" placeholder="bijv. janjansen/pauzerooster">
-                <small style="color: #666; font-size: 12px;">Waar je index.html staat</small>
-            </div>
-            
-            <div class="form-group">
-                <label for="fileName">Bestandsnaam in repository:</label>
-                <input type="text" id="fileName" placeholder="rooster-data.json" value="rooster-data.json">
-                <small style="color: #666; font-size: 12px;">Waar de data wordt opgeslagen</small>
-            </div>
-            
-            <div class="modal-buttons">
-                <button class="modal-btn modal-btn-secondary" id="testConnectionBtn">
-                    Test Verbinding
-                </button>
-                <button class="modal-btn modal-btn-primary" id="saveGithubConfig">
-                    Opslaan
-                </button>
-                <button class="modal-btn modal-btn-secondary" id="removeGithubConfig">
-                    Verwijderen
-                </button>
-            </div>
-            
-            <div id="connectionTestResult" style="margin-top: 15px; display: none;"></div>
-        </div>
-    </div>
 
     <script>
         // ===== BASIS CONFIGURATIE =====
@@ -990,28 +998,29 @@
             "ad-hoc": { label: "A", color: "ad-hoc", fullLabel: "Ad-hoc Verlof" },
             "verlof": { label: "V", color: "verlof", fullLabel: "Verlof" },
             "ziek": { label: "Z", color: "ziek", fullLabel: "Ziek" },
-            "geen": { label: "", color: "geen", fullLabel: "Geen planning" }
+            "geen": { label: "", color: "geen", fullLabel: "Geen planning" },
+            "buiten": { label: "", color: "buiten", fullLabel: "Buiten werktijd" }
         };
         
         // ===== GLOBALE VARIABELEN =====
         let agenten = [
-            { id: "2401", naam: "Gülden Sahin", pauzes: Array(35).fill("werk") },
-            { id: "2402", naam: "Alex de Klein", pauzes: Array(35).fill("werk") },
-            { id: "2404", naam: "Ilona de Winter", pauzes: Array(35).fill("werk") },
-            { id: "2406", naam: "Hira Kara", pauzes: Array(35).fill("werk") },
-            { id: "2407", naam: "Fatima Millet", pauzes: Array(35).fill("werk") },
-            { id: "2422", naam: "Merve Eltun", pauzes: Array(35).fill("werk") },
-            { id: "2425", naam: "Hatice Aygun", pauzes: Array(35).fill("werk") },
-            { id: "2444", naam: "Nurhan Hasancebi", pauzes: Array(35).fill("werk") },
-            { id: "2454", naam: "Melek Uz", pauzes: Array(35).fill("werk") },
-            { id: "2483", naam: "Fadime Erbil", pauzes: Array(35).fill("werk") },
-            { id: "2423", naam: "Eva Verbeek", pauzes: Array(35).fill("werk") },
-            { id: "2409", naam: "Nathalie de Witte", pauzes: Array(35).fill("werk") },
-            { id: "2411", naam: "Aslihan Ücüncü", pauzes: Array(35).fill("werk") },
-            { id: "2479", naam: "Kezban Egilmez", pauzes: Array(35).fill("werk") },
-            { id: "2485", naam: "Esma Dunya", pauzes: Array(35).fill("werk") },
-            { id: "2445", naam: "Elif Sahin", pauzes: Array(35).fill("werk") },
-            { id: "2438", naam: "Hülya Polat", pauzes: Array(35).fill("werk") }
+            { id: "2401", naam: "Gülden Sahin", eindTijd: "19:00", pauzes: Array(35).fill("werk") },
+            { id: "2402", naam: "Alex de Klein", eindTijd: "17:00", pauzes: Array(35).fill("werk") },
+            { id: "2404", naam: "Ilona de Winter", eindTijd: "16:00", pauzes: Array(35).fill("werk") },
+            { id: "2406", naam: "Hira Kara", eindTijd: "19:00", pauzes: Array(35).fill("werk") },
+            { id: "2407", naam: "Fatima Millet", eindTijd: "18:00", pauzes: Array(35).fill("werk") },
+            { id: "2422", naam: "Merve Eltun", eindTijd: "15:00", pauzes: Array(35).fill("werk") },
+            { id: "2425", naam: "Hatice Aygun", eindTijd: "19:00", pauzes: Array(35).fill("werk") },
+            { id: "2444", naam: "Nurhan Hasancebi", eindTijd: "17:30", pauzes: Array(35).fill("werk") },
+            { id: "2454", naam: "Melek Uz", eindTijd: "16:30", pauzes: Array(35).fill("werk") },
+            { id: "2483", naam: "Fadime Erbil", eindTijd: "18:30", pauzes: Array(35).fill("werk") },
+            { id: "2423", naam: "Eva Verbeek", eindTijd: "19:00", pauzes: Array(35).fill("werk") },
+            { id: "2409", naam: "Nathalie de Witte", eindTijd: "14:00", pauzes: Array(35).fill("werk") },
+            { id: "2411", naam: "Aslihan Ücüncü", eindTijd: "19:00", pauzes: Array(35).fill("werk") },
+            { id: "2479", naam: "Kezban Egilmez", eindTijd: "17:00", pauzes: Array(35).fill("werk") },
+            { id: "2485", naam: "Esma Dunya", eindTijd: "16:00", pauzes: Array(35).fill("werk") },
+            { id: "2445", naam: "Elif Sahin", eindTijd: "18:00", pauzes: Array(35).fill("werk") },
+            { id: "2438", naam: "Hülya Polat", eindTijd: "15:30", pauzes: Array(35).fill("werk") }
         ];
         
         let activeStatus = "werk";
@@ -1020,21 +1029,18 @@
         let editMode = false;
         let compactMode = true;
         
-        // ===== GITHUB CONFIGURATIE =====
-        let githubConfig = {
-            token: null,
-            repo: null,
-            fileName: 'rooster-data.json',
-            branch: 'main',
-            connected: false
-        };
+        // Selectie variabelen
+        let isSelecting = false;
+        let selectionStart = null;
+        let selectedCells = new Set();
+        let dragSelectionRect = null;
         
         // ===== TABEL FUNCTIES =====
         function buildTable() {
             const roosterBody = document.getElementById('roosterBody');
             const tableHead = document.querySelector('#roosterTable thead tr');
             
-            tableHead.innerHTML = '<th class="agent-header">Agent</th>';
+            tableHead.innerHTML = '<th class="agent-header">Agent (eindtijd)</th>';
             tijden.forEach(tijd => {
                 const th = document.createElement('th');
                 th.className = 'time-header';
@@ -1043,13 +1049,14 @@
             });
             
             roosterBody.innerHTML = '';
-            agenten.forEach((agent, index) => {
+            agenten.forEach((agent, agentIndex) => {
                 const row = document.createElement('tr');
                 row.className = 'agent-row';
                 row.dataset.agentId = agent.id;
-                row.dataset.agentIndex = index;
+                row.dataset.agentIndex = agentIndex;
                 row.dataset.agentNaam = agent.naam.toLowerCase();
                 
+                // Agent cel met eindtijd
                 const agentCell = document.createElement('td');
                 agentCell.className = 'agent-cell';
                 
@@ -1072,6 +1079,34 @@
                 agentInfo.innerHTML = `<span class="agent-id">${agent.id}</span> - ${agent.naam}`;
                 agentCell.appendChild(agentInfo);
                 
+                // Eindtijd editor
+                const endTimeDiv = document.createElement('div');
+                endTimeDiv.className = 'work-hours';
+                
+                const endTimeInput = document.createElement('input');
+                endTimeInput.type = 'time';
+                endTimeInput.className = 'work-hours-input';
+                endTimeInput.value = agent.eindTijd || "19:00";
+                endTimeInput.min = "10:15";
+                endTimeInput.max = "23:59";
+                endTimeInput.dataset.agentIndex = agentIndex;
+                
+                endTimeInput.addEventListener('change', function() {
+                    const idx = parseInt(this.dataset.agentIndex);
+                    if (agenten[idx]) {
+                        agenten[idx].eindTijd = this.value;
+                        updateRowForEndTime(idx);
+                        editMode = true;
+                        updateEditModeIndicator();
+                        updateLastModified();
+                    }
+                });
+                
+                endTimeDiv.appendChild(document.createTextNode('Eind: '));
+                endTimeDiv.appendChild(endTimeInput);
+                agentCell.appendChild(endTimeDiv);
+                
+                // Verwijder knop
                 if (!compactMode) {
                     const agentActions = document.createElement('div');
                     agentActions.className = 'agent-actions';
@@ -1083,7 +1118,7 @@
                     deleteBtn.addEventListener('click', function(e) {
                         e.stopPropagation();
                         if (confirm(`Weet je zeker dat je agent ${agent.id} - ${agent.naam} wilt verwijderen?`)) {
-                            deleteAgent(index);
+                            deleteAgent(agentIndex);
                         }
                     });
                     
@@ -1093,34 +1128,60 @@
                 
                 row.appendChild(agentCell);
                 
-                agent.pauzes.forEach((pauzeStatus, cellIndex) => {
-                    if (cellIndex >= tijden.length) return;
+                // Tijd cellen
+                agent.pauzes.forEach((pauzeStatus, timeIndex) => {
+                    if (timeIndex >= tijden.length) return;
                     
                     const td = document.createElement('td');
-                    const status = pauzeStatus || 'geen';
+                    const tijd = tijden[timeIndex];
+                    const eindTijd = agent.eindTijd || "19:00";
+                    
+                    // Bepaal of dit binnen werktijd valt
+                    const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, eindTijd);
+                    let status = pauzeStatus || 'geen';
+                    
+                    if (!isBinnenWerkTijd) {
+                        status = 'buiten';
+                    }
+                    
                     const config = statusConfig[status];
                     
                     td.className = config.color;
                     td.dataset.status = status;
-                    td.dataset.timeIndex = cellIndex;
-                    td.dataset.agentIndex = index;
+                    td.dataset.timeIndex = timeIndex;
+                    td.dataset.agentIndex = agentIndex;
+                    td.dataset.tijd = tijd;
+                    td.dataset.cellId = `cell-${agentIndex}-${timeIndex}`;
                     
-                    if (status !== 'geen') {
+                    if (status !== 'geen' && status !== 'buiten') {
                         const label = document.createElement('div');
                         label.className = 'cell-label';
                         label.textContent = config.label;
                         td.appendChild(label);
                     }
                     
-                    td.addEventListener('click', function(e) {
-                        if (e.button === 0) {
-                            updateCellStatus(this, activeStatus);
+                    // Klik events
+                    td.addEventListener('mousedown', function(e) {
+                        if (e.button === 2) { // Rechtermuisknop
+                            startSelection(e, this);
+                        } else if (e.button === 0) { // Linkermuisknop
+                            if (!isSelecting) {
+                                updateCellStatus(this, activeStatus);
+                            }
+                        }
+                    });
+                    
+                    td.addEventListener('mouseenter', function(e) {
+                        if (isSelecting && selectionStart) {
+                            updateSelection(this);
                         }
                     });
                     
                     td.addEventListener('contextmenu', function(e) {
-                        e.preventDefault();
-                        showContextMenu(e, this);
+                        if (!isSelecting) {
+                            e.preventDefault();
+                            showCellContextMenu(e, this);
+                        }
                     });
                     
                     row.appendChild(td);
@@ -1132,22 +1193,313 @@
             applyCompactMode();
             updateAgentCount();
             updateLastModified();
+            setupSelectionEvents();
         }
         
-        function applyCompactMode() {
-            const container = document.getElementById('mainContainer');
-            if (compactMode) {
-                container.classList.add('compact-mode');
-            } else {
-                container.classList.remove('compact-mode');
+        function isTijdBinnenWerkTijd(tijd, eindTijd) {
+            // Converteer tijden naar minuten sinds middernacht
+            function tijdNaarMinuten(t) {
+                const [uren, minuten] = t.split(':').map(Number);
+                return uren * 60 + minuten;
+            }
+            
+            const startTijd = "10:00";
+            const tijdMin = tijdNaarMinuten(tijd);
+            const startMin = tijdNaarMinuten(startTijd);
+            const eindMin = tijdNaarMinuten(eindTijd);
+            
+            // Voor de laatste tijd, zorg dat de agent tot die tijd werkt
+            // Dus als eindtijd 17:00 is, werkt hij tot 17:00 (dus 16:45 is laatste blok)
+            return tijdMin >= startMin && tijdMin < eindMin;
+        }
+        
+        function updateRowForEndTime(agentIndex) {
+            const agent = agenten[agentIndex];
+            if (!agent) return;
+            
+            const eindTijd = agent.eindTijd || "19:00";
+            
+            // Update alle cellen voor deze agent
+            for (let timeIndex = 0; timeIndex < tijden.length; timeIndex++) {
+                const tijd = tijden[timeIndex];
+                const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, eindTijd);
+                const cell = document.querySelector(`td[data-agent-index="${agentIndex}"][data-time-index="${timeIndex}"]`);
+                
+                if (cell) {
+                    let status = agent.pauzes[timeIndex] || 'geen';
+                    
+                    if (!isBinnenWerkTijd) {
+                        status = 'buiten';
+                    } else if (status === 'buiten') {
+                        status = 'geen';
+                    }
+                    
+                    const config = statusConfig[status];
+                    cell.className = config.color;
+                    cell.dataset.status = status;
+                    
+                    if (status !== 'geen' && status !== 'buiten') {
+                        const label = document.createElement('div');
+                        label.className = 'cell-label';
+                        label.textContent = config.label;
+                        cell.innerHTML = '';
+                        cell.appendChild(label);
+                    } else {
+                        cell.innerHTML = '';
+                    }
+                }
             }
         }
         
+        // ===== SELECTIE FUNCTIES =====
+        function setupSelectionEvents() {
+            const tableContainer = document.getElementById('tableContainer');
+            const dragSelection = document.getElementById('dragSelection');
+            
+            // Stop selectie bij loslaten van muis
+            document.addEventListener('mouseup', function(e) {
+                if (isSelecting && e.button === 2) {
+                    endSelection();
+                }
+            });
+            
+            // Update selectie tijdens slepen
+            document.addEventListener('mousemove', function(e) {
+                if (isSelecting && selectionStart && dragSelectionRect) {
+                    const currentX = e.clientX;
+                    const currentY = e.clientY;
+                    
+                    const rect = dragSelectionRect.getBoundingClientRect();
+                    const startX = rect.left;
+                    const startY = rect.top;
+                    
+                    // Update selectie rechthoek
+                    const left = Math.min(startX, currentX);
+                    const top = Math.min(startY, currentY);
+                    const width = Math.abs(currentX - startX);
+                    const height = Math.abs(currentY - startY);
+                    
+                    dragSelection.style.left = left + 'px';
+                    dragSelection.style.top = top + 'px';
+                    dragSelection.style.width = width + 'px';
+                    dragSelection.style.height = height + 'px';
+                    dragSelection.style.display = 'block';
+                    
+                    // Update cel selectie
+                    updateSelectionFromRect(left, top, width, height);
+                }
+            });
+            
+            // Toepassen knop voor selectie
+            document.getElementById('applySelectionBtn').addEventListener('click', function() {
+                showSelectionContextMenu();
+            });
+        }
+        
+        function startSelection(e, startCell) {
+            isSelecting = true;
+            selectionStart = {
+                cell: startCell,
+                x: e.clientX,
+                y: e.clientY
+            };
+            
+            // Maak selectie rechthoek
+            const dragSelection = document.getElementById('dragSelection');
+            dragSelection.style.left = e.clientX + 'px';
+            dragSelection.style.top = e.clientY + 'px';
+            dragSelection.style.width = '0px';
+            dragSelection.style.height = '0px';
+            dragSelection.style.display = 'block';
+            dragSelectionRect = dragSelection;
+            
+            // Clear vorige selectie
+            clearSelection();
+            updateSelection(startCell);
+            
+            // Voorkom context menu
+            e.preventDefault();
+        }
+        
+        function updateSelection(cell) {
+            if (!cell) return;
+            
+            const agentIndex = parseInt(cell.dataset.agentIndex);
+            const timeIndex = parseInt(cell.dataset.timeIndex);
+            const cellId = `cell-${agentIndex}-${timeIndex}`;
+            
+            // Alleen cellen binnen werktijd selecteren
+            if (cell.dataset.status !== 'buiten') {
+                if (!selectedCells.has(cellId)) {
+                    selectedCells.add(cellId);
+                    cell.classList.add('color-selected');
+                }
+            }
+            
+            updateSelectionInfo();
+        }
+        
+        function updateSelectionFromRect(left, top, width, height) {
+            // Clear vorige selectie
+            selectedCells.clear();
+            document.querySelectorAll('.color-selected').forEach(cell => {
+                cell.classList.remove('color-selected');
+            });
+            
+            // Selecteer cellen binnen de rechthoek
+            const allCells = document.querySelectorAll('td[data-agent-index][data-time-index]');
+            allCells.forEach(cell => {
+                const rect = cell.getBoundingClientRect();
+                const cellLeft = rect.left;
+                const cellRight = rect.right;
+                const cellTop = rect.top;
+                const cellBottom = rect.bottom;
+                
+                // Check of cel overlapt met selectie rechthoek
+                const overlaps = !(cellRight < left || cellLeft > left + width || 
+                                  cellBottom < top || cellTop > top + height);
+                
+                if (overlaps && cell.dataset.status !== 'buiten') {
+                    const agentIndex = parseInt(cell.dataset.agentIndex);
+                    const timeIndex = parseInt(cell.dataset.timeIndex);
+                    const cellId = `cell-${agentIndex}-${timeIndex}`;
+                    
+                    selectedCells.add(cellId);
+                    cell.classList.add('color-selected');
+                }
+            });
+            
+            updateSelectionInfo();
+        }
+        
+        function endSelection() {
+            isSelecting = false;
+            selectionStart = null;
+            
+            const dragSelection = document.getElementById('dragSelection');
+            dragSelection.style.display = 'none';
+            dragSelectionRect = null;
+            
+            // Toon selectie info als er cellen zijn geselecteerd
+            if (selectedCells.size > 0) {
+                document.getElementById('selectionInfo').style.display = 'block';
+            }
+        }
+        
+        function clearSelection() {
+            selectedCells.clear();
+            document.querySelectorAll('.color-selected').forEach(cell => {
+                cell.classList.remove('color-selected');
+            });
+            updateSelectionInfo();
+            document.getElementById('selectionInfo').style.display = 'none';
+        }
+        
+        function updateSelectionInfo() {
+            document.getElementById('selectionCount').textContent = selectedCells.size;
+        }
+        
+        function applyStatusToSelectedCells(status) {
+            selectedCells.forEach(cellId => {
+                const parts = cellId.split('-');
+                const agentIndex = parseInt(parts[1]);
+                const timeIndex = parseInt(parts[2]);
+                
+                const cell = document.querySelector(`td[data-agent-index="${agentIndex}"][data-time-index="${timeIndex}"]`);
+                if (cell && cell.dataset.status !== 'buiten') {
+                    updateCellStatus(cell, status);
+                }
+            });
+            
+            clearSelection();
+        }
+        
+        function showSelectionContextMenu(e) {
+            const contextMenu = document.getElementById('selectionContextMenu');
+            
+            if (e) {
+                contextMenu.style.left = e.clientX + 'px';
+                contextMenu.style.top = e.clientY + 'px';
+            } else {
+                // Toon in het midden van het scherm
+                contextMenu.style.left = '50%';
+                contextMenu.style.top = '50%';
+                contextMenu.style.transform = 'translate(-50%, -50%)';
+            }
+            
+            contextMenu.style.display = 'block';
+            
+            // Klik events voor menu items
+            const menuItems = contextMenu.querySelectorAll('.context-menu-item');
+            menuItems.forEach(item => {
+                item.onclick = function() {
+                    const status = this.dataset.status;
+                    const action = this.dataset.action;
+                    
+                    if (status) {
+                        applyStatusToSelectedCells(status);
+                    } else if (action === 'clear') {
+                        applyStatusToSelectedCells('geen');
+                    } else if (action === 'deselect') {
+                        clearSelection();
+                    }
+                    
+                    contextMenu.style.display = 'none';
+                };
+            });
+            
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu() {
+                    contextMenu.style.display = 'none';
+                    document.removeEventListener('click', closeMenu);
+                });
+            }, 10);
+        }
+        
+        function showCellContextMenu(e, cell) {
+            const contextMenu = document.getElementById('cellContextMenu');
+            contextMenu.style.left = e.clientX + 'px';
+            contextMenu.style.top = e.clientY + 'px';
+            contextMenu.style.display = 'block';
+            
+            contextMenu.dataset.selectedCell = JSON.stringify({
+                agentIndex: cell.dataset.agentIndex,
+                timeIndex: cell.dataset.timeIndex
+            });
+            
+            const menuItems = contextMenu.querySelectorAll('.context-menu-item');
+            menuItems.forEach(item => {
+                item.onclick = function() {
+                    const status = this.dataset.status;
+                    updateCellStatus(cell, status);
+                    contextMenu.style.display = 'none';
+                };
+            });
+            
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu() {
+                    contextMenu.style.display = 'none';
+                    document.removeEventListener('click', closeMenu);
+                });
+            }, 10);
+        }
+        
+        // ===== CEL BEWERKING =====
         function updateCellStatus(cell, newStatus) {
             if (!cell.dataset.agentIndex || !cell.dataset.timeIndex) return;
             
             const agentIndex = parseInt(cell.dataset.agentIndex);
             const timeIndex = parseInt(cell.dataset.timeIndex);
+            
+            // Controleer of dit binnen werktijd valt
+            const agent = agenten[agentIndex];
+            const tijd = tijden[timeIndex];
+            const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, agent.eindTijd || "19:00");
+            
+            if (!isBinnenWerkTijd) {
+                alert('Deze tijd valt buiten de werktijden van deze agent');
+                return;
+            }
             
             if (agentIndex >= 0 && timeIndex >= 0 && agenten[agentIndex]) {
                 agenten[agentIndex].pauzes[timeIndex] = newStatus;
@@ -1171,353 +1523,16 @@
             }
         }
         
-        // ===== GITHUB OPSLAG FUNCTIES =====
-        function loadGithubConfig() {
-            const token = localStorage.getItem('github_token');
-            const repo = localStorage.getItem('github_repo');
-            const fileName = localStorage.getItem('github_file') || 'rooster-data.json';
-            
-            if (token && repo) {
-                githubConfig.token = token;
-                githubConfig.repo = repo;
-                githubConfig.fileName = fileName;
-                githubConfig.connected = true;
-                return true;
-            }
-            return false;
-        }
-        
-        function updateSyncStatus(message, type = 'pending') {
-            const statusEl = document.getElementById('syncStatus');
-            if (!statusEl) return;
-            
-            statusEl.className = `sync-status sync-${type}`;
-            const icon = type === 'good' ? 'check-circle' : 
-                        type === 'error' ? 'exclamation-circle' : 
-                        type === 'local' ? 'hdd' : 'sync-alt';
-            statusEl.innerHTML = `<i class="fas fa-${icon}"></i><span>${message}</span>`;
-        }
-        
-        async function saveToGitHub() {
-            if (!githubConfig.connected) {
-                return saveToLocalStorage();
-            }
-            
-            updateSyncStatus('Opslaan naar GitHub...', 'pending');
-            
-            const roosterData = {
-                date: document.getElementById('datePicker').value,
-                agenten: agenten,
-                lastModified: new Date().toISOString(),
-                savedBy: 'GitHub'
-            };
-            
-            try {
-                const content = btoa(unescape(encodeURIComponent(JSON.stringify(roosterData, null, 2))));
-                let sha = null;
-                
-                try {
-                    const getResponse = await fetch(
-                        `https://api.github.com/repos/${githubConfig.repo}/contents/${githubConfig.fileName}`,
-                        {
-                            headers: {
-                                'Authorization': `Bearer ${githubConfig.token}`,
-                                'Accept': 'application/vnd.github.v3+json'
-                            }
-                        }
-                    );
-                    
-                    if (getResponse.ok) {
-                        const fileData = await getResponse.json();
-                        sha = fileData.sha;
-                    }
-                } catch (e) {
-                    // Bestand bestaat nog niet
-                }
-                
-                const commitData = {
-                    message: `Rooster update ${new Date().toLocaleString('nl-NL')}`,
-                    content: content,
-                    branch: githubConfig.branch
-                };
-                
-                if (sha) {
-                    commitData.sha = sha;
-                }
-                
-                const response = await fetch(
-                    `https://api.github.com/repos/${githubConfig.repo}/contents/${githubConfig.fileName}`,
-                    {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `Bearer ${githubConfig.token}`,
-                            'Accept': 'application/vnd.github.v3+json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(commitData)
-                    }
-                );
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    updateSyncStatus(`Opgeslagen om ${new Date().toLocaleTimeString('nl-NL', {hour: '2-digit', minute:'2-digit'})}`, 'good');
-                    
-                    setTimeout(() => {
-                        updateSyncStatus('GitHub verbonden', 'good');
-                    }, 3000);
-                    
-                    return true;
-                } else {
-                    const error = await response.json();
-                    throw new Error(error.message || 'Fout bij opslaan');
-                }
-            } catch (error) {
-                console.error('GitHub opslag fout:', error);
-                updateSyncStatus('GitHub fout, lokaal opgeslagen', 'error');
-                saveToLocalStorage();
-                return false;
-            }
-        }
-        
-        async function loadFromGitHub() {
-            if (!githubConfig.connected) {
-                return loadFromLocalStorage();
-            }
-            
-            updateSyncStatus('Laden van GitHub...', 'pending');
-            
-            try {
-                const response = await fetch(
-                    `https://api.github.com/repos/${githubConfig.repo}/contents/${githubConfig.fileName}`,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${githubConfig.token}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    }
-                );
-                
-                if (response.ok) {
-                    const fileData = await response.json();
-                    const content = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
-                    
-                    if (content && content.agenten) {
-                        updateSyncStatus(`GitHub: ${new Date(content.lastModified).toLocaleTimeString('nl-NL', {hour: '2-digit', minute:'2-digit'})}`, 'good');
-                        return content;
-                    }
-                } else if (response.status === 404) {
-                    updateSyncStatus('Nieuw rooster', 'good');
-                    return null;
-                } else {
-                    throw new Error('Fout bij laden');
-                }
-            } catch (error) {
-                console.error('GitHub laad fout:', error);
-                updateSyncStatus('Lokaal geladen', 'local');
-                return loadFromLocalStorage();
-            }
-        }
-        
-        function saveToLocalStorage() {
-            try {
-                const roosterData = {
-                    date: document.getElementById('datePicker').value,
-                    agenten: agenten,
-                    lastModified: new Date().toISOString(),
-                    savedBy: 'LocalStorage'
-                };
-                
-                localStorage.setItem('pauzerooster_data', JSON.stringify(roosterData));
-                localStorage.setItem('pauzerooster_last_save', new Date().toISOString());
-                updateSyncStatus(`Lokaal: ${new Date().toLocaleTimeString('nl-NL', {hour: '2-digit', minute:'2-digit'})}`, 'local');
-                return true;
-            } catch (e) {
-                console.error('LocalStorage fout:', e);
-                updateSyncStatus('Opslag mislukt', 'error');
-                return false;
-            }
-        }
-        
-        function loadFromLocalStorage() {
-            try {
-                const saved = localStorage.getItem('pauzerooster_data');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    const lastSave = localStorage.getItem('pauzerooster_last_save');
-                    if (lastSave) {
-                        updateSyncStatus(`Lokaal: ${new Date(lastSave).toLocaleTimeString('nl-NL', {hour: '2-digit', minute:'2-digit'})}`, 'local');
-                    }
-                    return data;
-                }
-            } catch (e) {
-                console.error('LocalStorage laad fout:', e);
-            }
-            updateSyncStatus('Nieuw rooster', 'good');
-            return null;
-        }
-        
-        async function testGitHubConnection() {
-            const token = document.getElementById('githubToken').value.trim();
-            const repo = document.getElementById('repoName').value.trim();
-            
-            if (!token || !repo) {
-                showTestResult('Vul token en repository in', 'error');
-                return;
-            }
-            
-            showTestResult('Testen verbinding...', 'pending');
-            
-            try {
-                const response = await fetch(
-                    `https://api.github.com/repos/${repo}`,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    }
-                );
-                
-                if (response.ok) {
-                    showTestResult('✓ Verbinding succesvol!', 'good');
-                } else {
-                    const error = await response.json();
-                    showTestResult(`✗ Fout: ${error.message}`, 'error');
-                }
-            } catch (error) {
-                showTestResult(`✗ Netwerkfout: ${error.message}`, 'error');
-            }
-        }
-        
-        function showTestResult(message, type) {
-            const resultEl = document.getElementById('connectionTestResult');
-            resultEl.style.display = 'block';
-            resultEl.innerHTML = `<div style="padding: 10px; border-radius: 5px; background-color: ${
-                type === 'good' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#fff3cd'
-            }; color: ${
-                type === 'good' ? '#155724' : type === 'error' ? '#721c24' : '#856404'
-            };">
-                <i class="fas fa-${type === 'good' ? 'check' : 'exclamation'}"></i> ${message}
-            </div>`;
-        }
-        
-        // ===== INITIALISATIE =====
-        function init() {
-            // Laad GitHub config
-            loadGithubConfig();
-            
-            // Setup GitHub modal
-            document.getElementById('githubConfigBtn').addEventListener('click', () => {
-                document.getElementById('githubToken').value = githubConfig.token || '';
-                document.getElementById('repoName').value = githubConfig.repo || '';
-                document.getElementById('fileName').value = githubConfig.fileName;
-                document.getElementById('connectionTestResult').style.display = 'none';
-                document.getElementById('githubConfigModal').style.display = 'flex';
-            });
-            
-            document.getElementById('testConnectionBtn').addEventListener('click', testGitHubConnection);
-            
-            document.getElementById('saveGithubConfig').addEventListener('click', () => {
-                const token = document.getElementById('githubToken').value.trim();
-                const repo = document.getElementById('repoName').value.trim();
-                const fileName = document.getElementById('fileName').value.trim() || 'rooster-data.json';
-                
-                if (!token || !repo) {
-                    alert('Vul token en repository naam in');
-                    return;
-                }
-                
-                localStorage.setItem('github_token', token);
-                localStorage.setItem('github_repo', repo);
-                localStorage.setItem('github_file', fileName);
-                
-                githubConfig.token = token;
-                githubConfig.repo = repo;
-                githubConfig.fileName = fileName;
-                githubConfig.connected = true;
-                
-                document.getElementById('githubConfigModal').style.display = 'none';
-                updateSyncStatus('GitHub verbonden', 'good');
-                
-                // Laad data van GitHub
-                loadData();
-            });
-            
-            document.getElementById('removeGithubConfig').addEventListener('click', () => {
-                if (confirm('GitHub configuratie verwijderen en overschakelen naar lokale opslag?')) {
-                    localStorage.removeItem('github_token');
-                    localStorage.removeItem('github_repo');
-                    localStorage.removeItem('github_file');
-                    githubConfig.connected = false;
-                    document.getElementById('githubConfigModal').style.display = 'none';
-                    updateSyncStatus('Lokale opslag', 'local');
-                }
-            });
-            
-            // Manual sync knop
-            document.getElementById('manualSyncBtn').addEventListener('click', async () => {
-                if (githubConfig.connected) {
-                    await saveToGitHub();
-                } else {
-                    saveToLocalStorage();
-                }
-            });
-            
-            // Vervang de opslaan knop
-            document.getElementById('saveBtn').addEventListener('click', async function() {
-                let saved;
-                if (githubConfig.connected) {
-                    saved = await saveToGitHub();
-                } else {
-                    saved = saveToLocalStorage();
-                }
-                
-                if (saved) {
-                    const msg = githubConfig.connected ? 
-                        `Rooster opgeslagen in GitHub voor ${document.getElementById('datePicker').value}\n\nWijzigingen zijn nu voor iedereen zichtbaar!` :
-                        `Rooster lokaal opgeslagen voor ${document.getElementById('datePicker').value}\n\n⚠️ Wijzigingen zijn alleen in deze browser zichtbaar.`;
-                    
-                    alert(`${msg}\n\nAantal agenten: ${agenten.length}`);
-                }
-                
-                editMode = false;
-                updateEditModeIndicator();
-            });
-            
-            // Load data bij start
-            loadData();
-            
-            // Rest van de init code...
-            setupFilters();
-            setupDatePicker();
-            setupAddAgentModal();
-            setupBulkEditModal();
-            setupLegendClick();
-            setupExportFunctionality();
-            setupCompactToggle();
-            
-            // Sluit modals bij klik buiten
-            document.querySelectorAll('.modal, .login-modal').forEach(modal => {
-                modal.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        this.style.display = 'none';
-                    }
-                });
-            });
-        }
-        
-        async function loadData() {
-            const savedData = await loadFromGitHub();
-            if (savedData && savedData.agenten && savedData.date === document.getElementById('datePicker').value) {
-                agenten = savedData.agenten;
-                buildTable();
-                updateLastModified();
-            } else {
-                buildTable();
-            }
-        }
-        
         // ===== OVERIGE FUNCTIES =====
+        function applyCompactMode() {
+            const container = document.getElementById('mainContainer');
+            if (compactMode) {
+                container.classList.add('compact-mode');
+            } else {
+                container.classList.remove('compact-mode');
+            }
+        }
+        
         function setupFilters() {
             const filterButtons = document.querySelectorAll('.filter-btn');
             const searchInput = document.getElementById('searchInput');
@@ -1599,6 +1614,7 @@
                 
                 document.getElementById('newAgentId').value = (maxId + 1).toString();
                 document.getElementById('newAgentName').value = '';
+                document.getElementById('newAgentEndTime').value = '19:00';
                 addAgentModal.style.display = 'flex';
             });
             
@@ -1609,6 +1625,7 @@
             confirmAddAgent.addEventListener('click', () => {
                 const newId = document.getElementById('newAgentId').value.trim();
                 const newName = document.getElementById('newAgentName').value.trim();
+                const endTime = document.getElementById('newAgentEndTime').value;
                 const defaultStatus = document.getElementById('newAgentDefaultStatus').value;
                 
                 if (!newId || !newName) {
@@ -1624,6 +1641,7 @@
                 const newAgent = {
                     id: newId,
                     naam: newName,
+                    eindTijd: endTime,
                     pauzes: Array(35).fill(defaultStatus)
                 };
                 
@@ -1684,7 +1702,14 @@
                 selectedAgents.forEach(agentId => {
                     const agentIndex = agenten.findIndex(a => a.id === agentId);
                     if (agentIndex !== -1) {
-                        agenten[agentIndex].pauzes = Array(35).fill(selectedBulkStatus);
+                        // Update alleen binnen werktijd
+                        for (let i = 0; i < agenten[agentIndex].pauzes.length; i++) {
+                            const tijd = tijden[i];
+                            const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, agenten[agentIndex].eindTijd || "19:00");
+                            if (isBinnenWerkTijd) {
+                                agenten[agentIndex].pauzes[i] = selectedBulkStatus;
+                            }
+                        }
                     }
                 });
                 
@@ -1793,7 +1818,7 @@
             exportContainer.appendChild(header);
             
             const tableClone = document.getElementById('roosterTable').cloneNode(true);
-            tableClone.querySelectorAll('.agent-select, .agent-actions').forEach(el => el.remove());
+            tableClone.querySelectorAll('.agent-select, .agent-actions, .work-hours-input').forEach(el => el.remove());
             tableClone.style.width = '100%';
             tableClone.style.fontSize = '14px';
             tableClone.style.borderCollapse = 'collapse';
@@ -1846,7 +1871,7 @@
             datePicker.min = today.toISOString().split('T')[0];
             datePicker.value = tomorrow.toISOString().split('T')[0];
             
-            datePicker.addEventListener('change', async function() {
+            datePicker.addEventListener('change', function() {
                 const selectedDate = new Date(this.value);
                 const formattedDate = selectedDate.toLocaleDateString('nl-NL', { 
                     weekday: 'long', 
@@ -1857,11 +1882,7 @@
                 
                 if (editMode) {
                     if (confirm('Je hebt niet-opgeslagen wijzigingen. Wil je deze eerst opslaan voordat je van datum wisselt?')) {
-                        if (githubConfig.connected) {
-                            await saveToGitHub();
-                        } else {
-                            saveToLocalStorage();
-                        }
+                        saveToLocalStorage();
                     }
                 }
                 
@@ -1870,31 +1891,6 @@
                 updateEditModeIndicator();
                 alert(`Rooster voor ${formattedDate} geladen.`);
             });
-        }
-        
-        function showContextMenu(event, cell) {
-            const contextMenu = document.getElementById('contextMenu');
-            contextMenu.style.left = `${event.pageX}px`;
-            contextMenu.style.top = `${event.pageY}px`;
-            contextMenu.style.display = 'block';
-            
-            const menuItems = contextMenu.querySelectorAll('.context-menu-item');
-            menuItems.forEach(item => {
-                item.onclick = function() {
-                    const status = this.dataset.status;
-                    updateCellStatus(cell, status);
-                    contextMenu.style.display = 'none';
-                };
-            });
-            
-            setTimeout(() => {
-                document.addEventListener('click', closeContextMenu);
-            }, 10);
-        }
-        
-        function closeContextMenu() {
-            document.getElementById('contextMenu').style.display = 'none';
-            document.removeEventListener('click', closeContextMenu);
         }
         
         function updateEditModeIndicator() {
@@ -1919,20 +1915,114 @@
             document.getElementById('agentCount').textContent = count;
         }
         
-        // RESET knop
-        document.getElementById('resetBtn').addEventListener('click', function() {
-            if (confirm('Weet je zeker dat je alle wijzigingen wilt resetten? Alle aangepaste pauzes gaan verloren.')) {
-                agenten.forEach(agent => {
-                    agent.pauzes = Array(35).fill("werk");
-                });
+        // ===== OPSLAG FUNCTIES =====
+        function saveToLocalStorage() {
+            try {
+                const roosterData = {
+                    date: document.getElementById('datePicker').value,
+                    agenten: agenten,
+                    lastModified: new Date().toISOString()
+                };
+                
+                localStorage.setItem('pauzerooster_data', JSON.stringify(roosterData));
+                localStorage.setItem('pauzerooster_last_save', new Date().toISOString());
+                document.getElementById('syncStatus').innerHTML = '<i class="fas fa-hdd"></i><span>Opgeslagen</span>';
+                
+                setTimeout(() => {
+                    document.getElementById('syncStatus').innerHTML = '<i class="fas fa-hdd"></i><span>Lokale opslag</span>';
+                }, 3000);
+                
+                return true;
+            } catch (e) {
+                console.error('LocalStorage fout:', e);
+                document.getElementById('syncStatus').innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Opslag mislukt</span>';
+                return false;
+            }
+        }
+        
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('pauzerooster_data');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    return data;
+                }
+            } catch (e) {
+                console.error('LocalStorage laad fout:', e);
+            }
+            return null;
+        }
+        
+        function loadData() {
+            const savedData = loadFromLocalStorage();
+            if (savedData && savedData.agenten && savedData.date === document.getElementById('datePicker').value) {
+                agenten = savedData.agenten;
                 buildTable();
+                updateLastModified();
+            } else {
+                buildTable();
+            }
+        }
+        
+        // ===== INITIALISATIE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load data
+            loadData();
+            
+            // Setup event listeners
+            setupFilters();
+            setupDatePicker();
+            setupAddAgentModal();
+            setupBulkEditModal();
+            setupLegendClick();
+            setupExportFunctionality();
+            setupCompactToggle();
+            
+            // Opslaan knop
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                const saved = saveToLocalStorage();
+                if (saved) {
+                    alert(`Rooster opgeslagen voor ${document.getElementById('datePicker').value}\n\nAantal agenten: ${agenten.length}`);
+                }
                 editMode = false;
                 updateEditModeIndicator();
-            }
+            });
+            
+            // Reset knop
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                if (confirm('Weet je zeker dat je alle wijzigingen wilt resetten? Alle aangepaste pauzes gaan verloren.')) {
+                    agenten.forEach(agent => {
+                        // Reset alleen binnen werktijd
+                        for (let i = 0; i < agent.pauzes.length; i++) {
+                            const tijd = tijden[i];
+                            const isBinnenWerkTijd = isTijdBinnenWerkTijd(tijd, agent.eindTijd || "19:00");
+                            if (isBinnenWerkTijd) {
+                                agent.pauzes[i] = "werk";
+                            }
+                        }
+                    });
+                    buildTable();
+                    editMode = false;
+                    updateEditModeIndicator();
+                }
+            });
+            
+            // Sluit modals bij klik buiten
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Voorkom standaard context menu
+            document.addEventListener('contextmenu', function(e) {
+                if (e.target.tagName === 'TD' && e.target.dataset.timeIndex !== undefined) {
+                    e.preventDefault();
+                }
+            });
         });
-        
-        // START ALLES
-        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
