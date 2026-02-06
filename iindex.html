@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pauzerooster Agenten - Gedeelde Opslag</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 15px;
+            max-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            max-width: 100%;
+            height: 95vh;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 15px 20px;
+            border-bottom: 3px solid #2980b9;
+            flex-shrink: 0;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        h1 {
+            font-size: 22px;
+            margin-bottom: 3px;
+        }
+        
+        .subtitle {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .date-selector input {
+            padding: 5px 8px;
+            border-radius: 4px;
+            border: none;
+            font-size: 13px;
+            width: 120px;
+        }
+        
+        .controls {
+            padding: 12px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #eaeaea;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 8px 8px 8px 35px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 6px 12px;
+            border-radius: 5px;
+            border: none;
+            background-color: #ecf0f1;
+            color: #34495e;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+        
+        .filter-btn:hover {
+            background-color: #d5dbdb;
+        }
+        
+        .filter-btn.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 5px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+        
+        .btn-save {
+            background-color: #27ae60;
+        }
+        
+        .btn-save:hover {
+            background-color: #219653;
+        }
+        
+        .btn-reset {
+            background-color: #e74c3c;
+        }
+        
+        .btn-reset:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-add-agent {
+            background-color: #9b59b6;
+        }
+        
+        .btn-add-agent:hover {
+            background-color: #8e44ad;
+        }
+        
+        .btn-bulk-edit {
+            background-color: #f39c12;
+        }
+        
+        .btn-bulk-edit:hover {
+            background-color: #d68910;
+        }
+        
+        .btn-export {
+            background-color: #1abc9c;
+        }
+        
+        .btn-export:hover {
+            background-color: #16a085;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #eaeaea;
+            font-size: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .legend-item:hover {
+            background-color: #eaeaea;
+        }
+        
+        .color-box {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+        
+        .color-werk { background-color: #2ecc71; }
+        .color-kort { background-color: #ff9ff3; }
+        .color-lunch { background-color: #54a0ff; }
+        .color-ad-hoc { background-color: #ff6b6b; }
+        .color-verlof { background-color: #a29bfe; }
+        .color-ziek { background-color: #e74c3c; }
+        .color-geen { background-color: #f8f9fa; border: 1px solid #ddd; }
+        
+        .table-container {
+            overflow: auto;
+            padding: 0 15px 15px;
+            flex-grow: 1;
+            height: 100%;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        
+        th {
+            background-color: #34495e;
+            color: white;
+            padding: 8px 5px;
+            text-align: center;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 11px;
+        }
+        
+        .time-header {
+            min-width: 50px;
+            max-width: 50px;
+        }
+        
+        .agent-header {
+            min-width: 150px;
+            max-width: 150px;
+            text-align: left;
+            padding-left: 10px;
+        }
+        
+        td {
+            padding: 4px 3px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+            cursor: pointer;
+            transition: all 0.2s;
+            height: 28px;
+            max-width: 50px;
+            overflow: hidden;
+        }
+        
+        .agent-cell {
+            text-align: left;
+            padding-left: 10px;
+            font-weight: 600;
+            background-color: #f8f9fa;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            min-width: 150px;
+            max-width: 150px;
+            cursor: default;
+            font-size: 12px;
+        }
+        
+        .werk { background-color: #2ecc71; color: white; font-weight: bold; }
+        .kort { background-color: #ff9ff3; color: #333; font-weight: bold; }
+        .lunch { background-color: #54a0ff; color: white; font-weight: bold; }
+        .ad-hoc { background-color: #ff6b6b; color: white; font-weight: bold; }
+        .verlof { background-color: #a29bfe; color: white; font-weight: bold; }
+        .ziek { background-color: #e74c3c; color: white; font-weight: bold; }
+        .geen { background-color: #f8f9fa; }
+        
+        .cell-label {
+            font-size: 10px;
+            padding: 1px 3px;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+        
+        .agent-row:hover {
+            background-color: #f1f8ff;
+        }
+        
+        .agent-row:hover .agent-cell {
+            background-color: #e3f2fd;
+        }
+        
+        .agent-id {
+            color: #7f8c8d;
+            font-weight: normal;
+            font-size: 11px;
+        }
+        
+        .agent-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 3px;
+        }
+        
+        .agent-action-btn {
+            padding: 1px 5px;
+            font-size: 10px;
+            border-radius: 2px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .agent-action-btn:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .footer {
+            padding: 12px 20px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #eaeaea;
+            font-size: 12px;
+            color: #7f8c8d;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .notes {
+            margin-top: 12px;
+            padding: 10px;
+            background-color: #fff8e1;
+            border-radius: 6px;
+            border-left: 3px solid #ffc107;
+            font-size: 11px;
+        }
+        
+        .notes h3 {
+            color: #d68910;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        
+        .context-menu {
+            position: absolute;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            min-width: 180px;
+            display: none;
+            font-size: 13px;
+        }
+        
+        .context-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .context-menu-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .context-menu-divider {
+            height: 1px;
+            background-color: #eaeaea;
+            margin: 4px 0;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            width: 90%;
+            max-width: 450px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #34495e;
+            font-size: 14px;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        .modal-btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .modal-btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .modal-btn-secondary {
+            background-color: #ecf0f1;
+            color: #333;
+        }
+        
+        .bulk-edit-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .bulk-edit-btn {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+        
+        .bulk-edit-btn:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .compact-toggle {
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+        
+        .compact-toggle:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .compact-mode .cell-label {
+            font-size: 9px;
+            padding: 0 1px;
+        }
+        
+        .compact-mode td {
+            height: 24px;
+            padding: 2px;
+        }
+        
+        .compact-mode .agent-cell {
+            min-width: 140px;
+            max-width: 140px;
+        }
+        
+        .compact-mode .time-header {
+            min-width: 45px;
+            max-width: 45px;
+        }
+        
+        .sync-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .sync-good { background-color: #d4edda; color: #155724; }
+        .sync-pending { background-color: #fff3cd; color: #856404; }
+        .sync-error { background-color: #f8d7da; color: #721c24; }
+        .sync-local { background-color: #e2e3e5; color: #383d41; }
+        
+        .login-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .api-instructions {
+            background-color: #e8f4fd;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+        
+        .api-instructions ol {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .api-instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .github-link {
+            color: #0366d6;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .github-link:hover {
+            text-decoration: underline;
+        }
+        
+        .token-input {
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .sync-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sync-btn {
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .sync-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        @media (max-width: 768px) {
+            .footer {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .sync-controls {
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="edit-mode-indicator" id="editModeIndicator">
+        <i class="fas fa-edit"></i> Bewerkmodus
+    </div>
+    
+    <div class="container" id="mainContainer">
+        <header>
+            <div class="header-content">
+                <div>
+                    <h1><i class="fas fa-clock"></i> Pauzerooster Agenten</h1>
+                    <p class="subtitle">Gedeelde opslag via GitHub</p>
+                </div>
+                <div class="date-selector">
+                    <i class="fas fa-calendar-alt"></i>
+                    <input type="date" id="datePicker" value="2024-04-15">
+                    <span>Dienst: 10:00-19:00</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Zoek agent...">
+            </div>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn" data-filter="all">
+                    <i class="fas fa-users"></i> Alle
+                </button>
+                <button class="filter-btn" data-filter="pauze">
+                    <i class="fas fa-utensils"></i> Pauze
+                </button>
+                <button class="filter-btn" data-filter="werk">
+                    <i class="fas fa-briefcase"></i> Werk
+                </button>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn btn-add-agent" id="addAgentBtn">
+                    <i class="fas fa-user-plus"></i> Agent
+                </button>
+                <button class="action-btn btn-bulk-edit" id="bulkEditBtn">
+                    <i class="fas fa-edit"></i> Bulk
+                </button>
+                <button class="action-btn btn-export" id="exportBtn">
+                    <i class="fas fa-camera"></i> Afbeelding
+                </button>
+                <button class="action-btn btn-reset" id="resetBtn">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+                <button class="action-btn btn-save" id="saveBtn">
+                    <i class="fas fa-save"></i> Opslaan
+                </button>
+                <button class="compact-toggle" id="compactToggle">
+                    <i class="fas fa-compress"></i> Compact
+                </button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="legend">
+                <div class="legend-item" data-status="werk">
+                    <div class="color-box color-werk"></div>
+                    <span>Werk</span>
+                </div>
+                <div class="legend-item" data-status="kort">
+                    <div class="color-box color-kort"></div>
+                    <span>Korte pauze</span>
+                </div>
+                <div class="legend-item" data-status="lunch">
+                    <div class="color-box color-lunch"></div>
+                    <span>Lunch</span>
+                </div>
+                <div class="legend-item" data-status="ad-hoc">
+                    <div class="color-box color-ad-hoc"></div>
+                    <span>Ad-hoc</span>
+                </div>
+                <div class="legend-item" data-status="verlof">
+                    <div class="color-box color-verlof"></div>
+                    <span>Verlof</span>
+                </div>
+                <div class="legend-item" data-status="ziek">
+                    <div class="color-box color-ziek"></div>
+                    <span>Ziek</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="roosterTable">
+                <thead>
+                    <tr>
+                        <th class="agent-header">Agent</th>
+                        <!-- Tijden worden hier ingevoegd via JavaScript -->
+                    </tr>
+                </thead>
+                <tbody id="roosterBody">
+                    <!-- Agent rijen worden hier ingevoegd via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-info">
+                <div>
+                    <i class="fas fa-sync-alt"></i> Laatst: <span id="lastModified">-</span> | 
+                    Agenten: <span id="agentCount">16</span>
+                </div>
+                <div class="sync-status sync-pending" id="syncStatus">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Laden...</span>
+                </div>
+            </div>
+            <div class="sync-controls">
+                <button class="sync-btn" id="manualSyncBtn" title="Handmatig synchroniseren">
+                    <i class="fas fa-sync"></i> Sync
+                </button>
+                <button class="sync-btn" id="githubConfigBtn" title="GitHub instellingen">
+                    <i class="fab fa-github"></i> Config
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" data-status="werk">
+            <div class="color-box color-werk"></div>
+            <span>Werk</span>
+        </div>
+        <div class="context-menu-item" data-status="kort">
+            <div class="color-box color-kort"></div>
+            <span>Korte pauze</span>
+        </div>
+        <div class="context-menu-item" data-status="lunch">
+            <div class="color-box color-lunch"></div>
+            <span>Lunch</span>
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" data-status="ad-hoc">
+            <div class="color-box color-ad-hoc"></div>
+            <span>Ad-hoc Verlof</span>
+        </div>
+        <div class="context-menu-item" data-status="verlof">
+            <div class="color-box color-verlof"></div>
+            <span>Verlof</span>
+        </div>
+        <div class="context-menu-item" data-status="ziek">
+            <div class="color-box color-ziek"></div>
+            <span>Ziek</span>
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" data-status="geen">
+            <div class="color-box color-geen"></div>
+            <span>Leeg</span>
+        </div>
+    </div>
+    
+    <!-- Modal voor Agent Toevoegen -->
+    <div class="modal" id="addAgentModal">
+        <div class="modal-content">
+            <h2><i class="fas fa-user-plus"></i> Nieuwe Agent Toevoegen</h2>
+            <div class="form-group">
+                <label for="newAgentId">Agent ID:</label>
+                <input type="text" id="newAgentId" placeholder="Bijv. 2501">
+            </div>
+            <div class="form-group">
+                <label for="newAgentName">Naam:</label>
+                <input type="text" id="newAgentName" placeholder="Bijv. Jan Jansen">
+            </div>
+            <div class="form-group">
+                <label for="newAgentDefaultStatus">Standaard status:</label>
+                <select id="newAgentDefaultStatus">
+                    <option value="werk">Werk</option>
+                    <option value="kort">Korte pauze</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="ad-hoc">Ad-hoc Verlof</option>
+                    <option value="verlof">Verlof</option>
+                    <option value="ziek">Ziek</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-secondary" id="cancelAddAgent">Annuleren</button>
+                <button class="modal-btn modal-btn-primary" id="confirmAddAgent">Toevoegen</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal voor Bulk Bewerken -->
+    <div class="modal" id="bulkEditModal">
+        <div class="modal-content">
+            <h2><i class="fas fa-edit"></i> Bulk Bewerken</h2>
+            <p>Selecteer agenten en kies een status voor de hele dag:</p>
+            
+            <div class="bulk-edit-options">
+                <button class="bulk-edit-btn" data-status="werk">
+                    <div class="color-box color-werk"></div>
+                    Werk
+                </button>
+                <button class="bulk-edit-btn" data-status="kort">
+                    <div class="color-box color-kort"></div>
+                    Korte pauze
+                </button>
+                <button class="bulk-edit-btn" data-status="lunch">
+                    <div class="color-box color-lunch"></div>
+                    Lunch
+                </button>
+                <button class="bulk-edit-btn" data-status="ad-hoc">
+                    <div class="color-box color-ad-hoc"></div>
+                    Ad-hoc
+                </button>
+                <button class="bulk-edit-btn" data-status="verlof">
+                    <div class="color-box color-verlof"></div>
+                    Verlof
+                </button>
+                <button class="bulk-edit-btn" data-status="ziek">
+                    <div class="color-box color-ziek"></div>
+                    Ziek
+                </button>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-secondary" id="cancelBulkEdit">Annuleren</button>
+                <button class="modal-btn modal-btn-primary" id="confirmBulkEdit">Toepassen</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal voor Export -->
+    <div class="modal" id="exportModal">
+        <div class="modal-content">
+            <h2><i class="fas fa-camera"></i> Rooster Exporteren</h2>
+            <p>Voorbeeld van het rooster als afbeelding:</p>
+            
+            <div class="export-preview" id="exportPreview">
+                <!-- Hier komt de afbeelding preview -->
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" id="downloadBtn">
+                    <i class="fas fa-download"></i> Downloaden
+                </button>
+                <button class="modal-btn modal-btn-secondary" id="closeExportBtn">
+                    Sluiten
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal voor GitHub Config -->
+    <div class="login-modal" id="githubConfigModal">
+        <div class="modal-content">
+            <h2><i class="fab fa-github"></i> GitHub Opslag Instellen</h2>
+            <p>Configureer GitHub om wijzigingen voor iedereen op te slaan.</p>
+            
+            <div class="api-instructions">
+                <strong>Stap-voor-stap instructie:</strong>
+                <ol>
+                    <li>Ga naar <a href="https://github.com/settings/tokens" target="_blank" class="github-link">GitHub Tokens</a></li>
+                    <li>Klik op <strong>"Generate new token (classic)"</strong></li>
+                    <li>Geef een naam bijv. "Pauzerooster"</li>
+                    <li>Selecteer <strong>alleen "repo"</strong> scope (vinkje aan)</li>
+                    <li>Klik "Generate token" onderaan</li>
+                    <li><strong>Kopieer het token</strong> (dit zie je maar 1x!)</li>
+                </ol>
+            </div>
+            
+            <div class="form-group">
+                <label for="githubToken">GitHub Personal Access Token:</label>
+                <input type="password" id="githubToken" class="token-input" placeholder="ghp_abc123...">
+                <small style="color: #666; font-size: 12px;">Begint met "ghp_" of "github_pat_"</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="repoName">Repository (gebruiker/repository):</label>
+                <input type="text" id="repoName" placeholder="bijv. janjansen/pauzerooster">
+                <small style="color: #666; font-size: 12px;">Waar je index.html staat</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="fileName">Bestandsnaam in repository:</label>
+                <input type="text" id="fileName" placeholder="rooster-data.json" value="rooster-data.json">
+                <small style="color: #666; font-size: 12px;">Waar de data wordt opgeslagen</small>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-secondary" id="testConnectionBtn">
+                    Test Verbinding
+                </button>
+                <button class="modal-btn modal-btn-primary" id="saveGithubConfig">
+                    Opslaan
+                </button>
+                <button class="modal-btn modal-btn-secondary" id="removeGithubConfig">
+                    Verwijderen
+                </button>
+            </div>
+            
+            <div id="connectionTestResult" style="margin-top: 15px; display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // ===== BASIS CONFIGURATIE =====
+        const tijden = [
+            "10:00", "10:15", "10:30", "11:00", "11:15", "11:30", "11:45", 
+            "12:00", "12:15", "12:30", "12:45", "13:00", "13:15", "13:30", 
+            "13:45", "14:00", "14:15", "14:30", "14:45", "15:00", "15:15", 
+            "15:30", "15:45", "16:00", "16:15", "16:30", "16:45", "17:00", 
+            "17:15", "17:30", "17:45", "18:00", "18:15", "18:30", "19:00"
+        ];
+        
+        const statusConfig = {
+            "werk": { label: "W", color: "werk", fullLabel: "Werk" },
+            "kort": { label: "K", color: "kort", fullLabel: "Korte pauze" },
+            "lunch": { label: "L", color: "lunch", fullLabel: "Lunch" },
+            "ad-hoc": { label: "A", color: "ad-hoc", fullLabel: "Ad-hoc Verlof" },
+            "verlof": { label: "V", color: "verlof", fullLabel: "Verlof" },
+            "ziek": { label: "Z", color: "ziek", fullLabel: "Ziek" },
+            "geen": { label: "", color: "geen", fullLabel: "Geen planning" }
+        };
+        
+        // ===== GLOBALE VARIABELEN =====
+        let agenten = [
+            { id: "2401", naam: "Gülden Sahin", pauzes: Array(35).fill("werk") },
+            { id: "2402", naam: "Alex de Klein", pauzes: Array(35).fill("werk") },
+            { id: "2404", naam: "Ilona de Winter", pauzes: Array(35).fill("werk") },
+            { id: "2406", naam: "Hira Kara", pauzes: Array(35).fill("werk") },
+            { id: "2407", naam: "Fatima Millet", pauzes: Array(35).fill("werk") },
+            { id: "2422", naam: "Merve Eltun", pauzes: Array(35).fill("werk") },
+            { id: "2425", naam: "Hatice Aygun", pauzes: Array(35).fill("werk") },
+            { id: "2444", naam: "Nurhan Hasancebi", pauzes: Array(35).fill("werk") },
+            { id: "2454", naam: "Melek Uz", pauzes: Array(35).fill("werk") },
+            { id: "2483", naam: "Fadime Erbil", pauzes: Array(35).fill("werk") },
+            { id: "2423", naam: "Eva Verbeek", pauzes: Array(35).fill("werk") },
+            { id: "2409", naam: "Nathalie de Witte", pauzes: Array(35).fill("werk") },
+            { id: "2411", naam: "Aslihan Ücüncü", pauzes: Array(35).fill("werk") },
+            { id: "2479", naam: "Kezban Egilmez", pauzes: Array(35).fill("werk") },
+            { id: "2485", naam: "Esma Dunya", pauzes: Array(35).fill("werk") },
+            { id: "2445", naam: "Elif Sahin", pauzes: Array(35).fill("werk") },
+            { id: "2438", naam: "Hülya Polat", pauzes: Array(35).fill("werk") }
+        ];
+        
+        let activeStatus = "werk";
+        let selectedAgents = new Set();
+        let lastModified = new Date();
+        let editMode = false;
+        let compactMode = true;
+        
+        // ===== GITHUB CONFIGURATIE =====
+        let githubConfig = {
+            token: null,
+            repo: null,
+            fileName: 'rooster-data.json',
+            branch: 'main',
+            connected: false
+        };
+        
+        // ===== TABEL FUNCTIES =====
+        function buildTable() {
+            const roosterBody = document.getElementById('roosterBody');
+            const tableHead = document.querySelector('#roosterTable thead tr');
+            
+            tableHead.innerHTML = '<th class="agent-header">Agent</th>';
+            tijden.forEach(tijd => {
+                const th = document.createElement('th');
+                th.className = 'time-header';
+                th.textContent = tijd;
+                tableHead.appendChild(th);
+            });
+            
+            roosterBody.innerHTML = '';
+            agenten.forEach((agent, index) => {
+                const row = document.createElement('tr');
+                row.className = 'agent-row';
+                row.dataset.agentId = agent.id;
+                row.dataset.agentIndex = index;
+                row.dataset.agentNaam = agent.naam.toLowerCase();
+                
+                const agentCell = document.createElement('td');
+                agentCell.className = 'agent-cell';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'agent-select';
+                checkbox.dataset.agentId = agent.id;
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        selectedAgents.add(agent.id);
+                    } else {
+                        selectedAgents.delete(agent.id);
+                    }
+                    updateBulkEditButton();
+                });
+                
+                agentCell.appendChild(checkbox);
+                
+                const agentInfo = document.createElement('span');
+                agentInfo.innerHTML = `<span class="agent-id">${agent.id}</span> - ${agent.naam}`;
+                agentCell.appendChild(agentInfo);
+                
+                if (!compactMode) {
+                    const agentActions = document.createElement('div');
+                    agentActions.className = 'agent-actions';
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'agent-action-btn';
+                    deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                    deleteBtn.title = 'Agent verwijderen';
+                    deleteBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (confirm(`Weet je zeker dat je agent ${agent.id} - ${agent.naam} wilt verwijderen?`)) {
+                            deleteAgent(index);
+                        }
+                    });
+                    
+                    agentActions.appendChild(deleteBtn);
+                    agentCell.appendChild(agentActions);
+                }
+                
+                row.appendChild(agentCell);
+                
+                agent.pauzes.forEach((pauzeStatus, cellIndex) => {
+                    if (cellIndex >= tijden.length) return;
+                    
+                    const td = document.createElement('td');
+                    const status = pauzeStatus || 'geen';
+                    const config = statusConfig[status];
+                    
+                    td.className = config.color;
+                    td.dataset.status = status;
+                    td.dataset.timeIndex = cellIndex;
+                    td.dataset.agentIndex = index;
+                    
+                    if (status !== 'geen') {
+                        const label = document.createElement('div');
+                        label.className = 'cell-label';
+                        label.textContent = config.label;
+                        td.appendChild(label);
+                    }
+                    
+                    td.addEventListener('click', function(e) {
+                        if (e.button === 0) {
+                            updateCellStatus(this, activeStatus);
+                        }
+                    });
+                    
+                    td.addEventListener('contextmenu', function(e) {
+                        e.preventDefault();
+                        showContextMenu(e, this);
+                    });
+                    
+                    row.appendChild(td);
+                });
+                
+                roosterBody.appendChild(row);
+            });
+            
+            applyCompactMode();
+            updateAgentCount();
+            updateLastModified();
+        }
+        
+        function applyCompactMode() {
+            const container = document.getElementById('mainContainer');
+            if (compactMode) {
+                container.classList.add('compact-mode');
+            } else {
+                container.classList.remove('compact-mode');
+            }
+        }
+        
+        function updateCellStatus(cell, newStatus) {
+            if (!cell.dataset.agentIndex || !cell.dataset.timeIndex) return;
+            
+            const agentIndex = parseInt(cell.dataset.agentIndex);
+            const timeIndex = parseInt(cell.dataset.timeIndex);
+            
+            if (agentIndex >= 0 && timeIndex >= 0 && agenten[agentIndex]) {
+                agenten[agentIndex].pauzes[timeIndex] = newStatus;
+                const config = statusConfig[newStatus];
+                cell.className = config.color;
+                cell.dataset.status = newStatus;
+                
+                if (newStatus === 'geen') {
+                    cell.innerHTML = '';
+                } else {
+                    const label = document.createElement('div');
+                    label.className = 'cell-label';
+                    label.textContent = config.label;
+                    cell.innerHTML = '';
+                    cell.appendChild(label);
+                }
+                
+                editMode = true;
+                updateEditModeIndicator();
+                updateLastModified();
+            }
+        }
+        
+        // ===== GITHUB OPSLAG FUNCTIES =====
+        function loadGithubConfig() {
+            const token = localStorage.getItem('github_token');
+            const repo = localStorage.getItem('github_repo');
+            const fileName = localStorage.getItem('github_file') || 'rooster-data.json';
+            
+            if (token && repo) {
+                githubConfig.token = token;
+                githubConfig.repo = repo;
+                githubConfig.fileName = fileName;
+                githubConfig.connected = true;
+                return true;
+            }
+            return false;
+        }
+        
+        function updateSyncStatus(message, type = 'pending') {
+            const statusEl = document.getElementById('syncStatus');
+            if (!statusEl) return;
+            
+            statusEl.className = `sync-status sync-${type}`;
+            const icon = type === 'good' ? 'check-circle' : 
+                        type === 'error' ? 'exclamation-circle' : 
+                        type === 'local' ? 'hdd' : 'sync-alt';
+            statusEl.innerHTML = `<i class="fas fa-${icon}"></i><span>${message}</span>`;
+        }
+        
+        async function saveToGitHub() {
+            if (!githubConfig.connected) {
+                return saveToLocalStorage();
+            }
+            
+            updateSyncStatus('Opslaan naar GitHub...', 'pending');
+            
+            const roosterData = {
+                date: document.getElementById('datePicker').value,
+                agenten: agenten,
+                lastModified: new Date().toISOString(),
+                savedBy: 'GitHub'
+            };
+            
+            try {
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify(roosterData, null, 2))));
+                let sha = null;
+                
+                try {
+                    const getResponse = await fetch(
+                        `https://api.github.com/repos/${githubConfig.repo}/contents/${githubConfig.fileName}`,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${githubConfig.token}`,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
+                        }
+                    );
+                    
+                    if (getResponse.ok) {
+                        const fileData = await getResponse.json();
+                        sha = fileData.sha;
+                    }
+                } catch (e) {
+                    // Bestand bestaat nog niet
+                }
+                
+                const commitData = {
+                    message: `Rooster update ${new Date().toLocaleString('nl-NL')}`,
+                    content: content,
+                    branch: githubConfig.branch
+                };
+                
+                if (sha) {
+                    commitData.sha = sha;
+                }
+                
+                const response = await fetch(
+                    `https://api.github.com/repos/${githubConfig.repo}/contents/${githubConfig.fileName}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${githubConfig.token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(commitData)
+                    }
+                );
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    updateSyncStatus(`Opgeslagen om ${new Date().toLocaleTimeString('nl-NL', {hour: '2-digit', minute:'2-digit'})}`, 'good');
+                    
+                    setTimeout(() => {
+                        updateSyncStatus('GitHub verbonden', 'good');
+                    }, 3000);
+                    
+                    return true;
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Fout bij opslaan');
+                }
+            } catch (error) {
+                console.error('GitHub opslag fout:', error);
+                updateSyncStatus('GitHub fout, lokaal opgeslagen', 'error');
+                saveToLocalStorage();
+                return false;
+            }
+        }
+        
+        async function loadFromGitHub() {
+            if (!githubConfig.connected) {
+                return loadFromLocalStorage();
+            }
+            
+            updateSyncStatus('Laden van GitHub...', 'pending');
+            
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${githubConfig.repo}/contents/${githubConfig.fileName}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${githubConfig.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+                
+                if (response.ok) {
+                    const fileData = await response.json();
+                    const content = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+                    
+                    if (content && content.agenten) {
+                        updateSyncStatus(`GitHub: ${new Date(content.lastModified).toLocaleTimeString('nl-NL', {hour: '2-digit', minute:'2-digit'})}`, 'good');
+                        return content;
+                    }
+                } else if (response.status === 404) {
+                    updateSyncStatus('Nieuw rooster', 'good');
+                    return null;
+                } else {
+                    throw new Error('Fout bij laden');
+                }
+            } catch (error) {
+                console.error('GitHub laad fout:', error);
+                updateSyncStatus('Lokaal geladen', 'local');
+                return loadFromLocalStorage();
+            }
+        }
+        
+        function saveToLocalStorage() {
+            try {
+                const roosterData = {
+                    date: document.getElementById('datePicker').value,
+                    agenten: agenten,
+                    lastModified: new Date().toISOString(),
+                    savedBy: 'LocalStorage'
+                };
+                
+                localStorage.setItem('pauzerooster_data', JSON.stringify(roosterData));
+                localStorage.setItem('pauzerooster_last_save', new Date().toISOString());
+                updateSyncStatus(`Lokaal: ${new Date().toLocaleTimeString('nl-NL', {hour: '2-digit', minute:'2-digit'})}`, 'local');
+                return true;
+            } catch (e) {
+                console.error('LocalStorage fout:', e);
+                updateSyncStatus('Opslag mislukt', 'error');
+                return false;
+            }
+        }
+        
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('pauzerooster_data');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    const lastSave = localStorage.getItem('pauzerooster_last_save');
+                    if (lastSave) {
+                        updateSyncStatus(`Lokaal: ${new Date(lastSave).toLocaleTimeString('nl-NL', {hour: '2-digit', minute:'2-digit'})}`, 'local');
+                    }
+                    return data;
+                }
+            } catch (e) {
+                console.error('LocalStorage laad fout:', e);
+            }
+            updateSyncStatus('Nieuw rooster', 'good');
+            return null;
+        }
+        
+        async function testGitHubConnection() {
+            const token = document.getElementById('githubToken').value.trim();
+            const repo = document.getElementById('repoName').value.trim();
+            
+            if (!token || !repo) {
+                showTestResult('Vul token en repository in', 'error');
+                return;
+            }
+            
+            showTestResult('Testen verbinding...', 'pending');
+            
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${repo}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+                
+                if (response.ok) {
+                    showTestResult('✓ Verbinding succesvol!', 'good');
+                } else {
+                    const error = await response.json();
+                    showTestResult(`✗ Fout: ${error.message}`, 'error');
+                }
+            } catch (error) {
+                showTestResult(`✗ Netwerkfout: ${error.message}`, 'error');
+            }
+        }
+        
+        function showTestResult(message, type) {
+            const resultEl = document.getElementById('connectionTestResult');
+            resultEl.style.display = 'block';
+            resultEl.innerHTML = `<div style="padding: 10px; border-radius: 5px; background-color: ${
+                type === 'good' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#fff3cd'
+            }; color: ${
+                type === 'good' ? '#155724' : type === 'error' ? '#721c24' : '#856404'
+            };">
+                <i class="fas fa-${type === 'good' ? 'check' : 'exclamation'}"></i> ${message}
+            </div>`;
+        }
+        
+        // ===== INITIALISATIE =====
+        function init() {
+            // Laad GitHub config
+            loadGithubConfig();
+            
+            // Setup GitHub modal
+            document.getElementById('githubConfigBtn').addEventListener('click', () => {
+                document.getElementById('githubToken').value = githubConfig.token || '';
+                document.getElementById('repoName').value = githubConfig.repo || '';
+                document.getElementById('fileName').value = githubConfig.fileName;
+                document.getElementById('connectionTestResult').style.display = 'none';
+                document.getElementById('githubConfigModal').style.display = 'flex';
+            });
+            
+            document.getElementById('testConnectionBtn').addEventListener('click', testGitHubConnection);
+            
+            document.getElementById('saveGithubConfig').addEventListener('click', () => {
+                const token = document.getElementById('githubToken').value.trim();
+                const repo = document.getElementById('repoName').value.trim();
+                const fileName = document.getElementById('fileName').value.trim() || 'rooster-data.json';
+                
+                if (!token || !repo) {
+                    alert('Vul token en repository naam in');
+                    return;
+                }
+                
+                localStorage.setItem('github_token', token);
+                localStorage.setItem('github_repo', repo);
+                localStorage.setItem('github_file', fileName);
+                
+                githubConfig.token = token;
+                githubConfig.repo = repo;
+                githubConfig.fileName = fileName;
+                githubConfig.connected = true;
+                
+                document.getElementById('githubConfigModal').style.display = 'none';
+                updateSyncStatus('GitHub verbonden', 'good');
+                
+                // Laad data van GitHub
+                loadData();
+            });
+            
+            document.getElementById('removeGithubConfig').addEventListener('click', () => {
+                if (confirm('GitHub configuratie verwijderen en overschakelen naar lokale opslag?')) {
+                    localStorage.removeItem('github_token');
+                    localStorage.removeItem('github_repo');
+                    localStorage.removeItem('github_file');
+                    githubConfig.connected = false;
+                    document.getElementById('githubConfigModal').style.display = 'none';
+                    updateSyncStatus('Lokale opslag', 'local');
+                }
+            });
+            
+            // Manual sync knop
+            document.getElementById('manualSyncBtn').addEventListener('click', async () => {
+                if (githubConfig.connected) {
+                    await saveToGitHub();
+                } else {
+                    saveToLocalStorage();
+                }
+            });
+            
+            // Vervang de opslaan knop
+            document.getElementById('saveBtn').addEventListener('click', async function() {
+                let saved;
+                if (githubConfig.connected) {
+                    saved = await saveToGitHub();
+                } else {
+                    saved = saveToLocalStorage();
+                }
+                
+                if (saved) {
+                    const msg = githubConfig.connected ? 
+                        `Rooster opgeslagen in GitHub voor ${document.getElementById('datePicker').value}\n\nWijzigingen zijn nu voor iedereen zichtbaar!` :
+                        `Rooster lokaal opgeslagen voor ${document.getElementById('datePicker').value}\n\n⚠️ Wijzigingen zijn alleen in deze browser zichtbaar.`;
+                    
+                    alert(`${msg}\n\nAantal agenten: ${agenten.length}`);
+                }
+                
+                editMode = false;
+                updateEditModeIndicator();
+            });
+            
+            // Load data bij start
+            loadData();
+            
+            // Rest van de init code...
+            setupFilters();
+            setupDatePicker();
+            setupAddAgentModal();
+            setupBulkEditModal();
+            setupLegendClick();
+            setupExportFunctionality();
+            setupCompactToggle();
+            
+            // Sluit modals bij klik buiten
+            document.querySelectorAll('.modal, .login-modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        async function loadData() {
+            const savedData = await loadFromGitHub();
+            if (savedData && savedData.agenten && savedData.date === document.getElementById('datePicker').value) {
+                agenten = savedData.agenten;
+                buildTable();
+                updateLastModified();
+            } else {
+                buildTable();
+            }
+        }
+        
+        // ===== OVERIGE FUNCTIES =====
+        function setupFilters() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const searchInput = document.getElementById('searchInput');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    filterRows(button.dataset.filter);
+                });
+            });
+            
+            searchInput.addEventListener('input', () => {
+                filterRows('search', searchInput.value.toLowerCase());
+            });
+            
+            document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+        }
+        
+        function filterRows(filterType, searchTerm = '') {
+            const rows = document.querySelectorAll('.agent-row');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const agentId = row.dataset.agentId;
+                const agentNaam = row.dataset.agentNaam;
+                let showRow = true;
+                
+                if (filterType === 'search') {
+                    showRow = agentId.includes(searchTerm) || agentNaam.includes(searchTerm);
+                } else if (filterType === 'pauze') {
+                    const now = new Date();
+                    const currentHour = now.getHours().toString().padStart(2, '0');
+                    const currentMinute = now.getMinutes();
+                    const currentTime = `${currentHour}:${currentMinute < 15 ? '00' : currentMinute < 30 ? '15' : currentMinute < 45 ? '30' : '45'}`;
+                    
+                    const timeIndex = tijden.indexOf(currentTime);
+                    if (timeIndex !== -1) {
+                        const cell = row.children[timeIndex + 1];
+                        const status = cell.dataset.status;
+                        showRow = status === 'kort' || status === 'lunch';
+                    } else {
+                        showRow = false;
+                    }
+                } else if (filterType === 'werk') {
+                    const now = new Date();
+                    const currentHour = now.getHours().toString().padStart(2, '0');
+                    const currentMinute = now.getMinutes();
+                    const currentTime = `${currentHour}:${currentMinute < 15 ? '00' : currentMinute < 30 ? '15' : currentMinute < 45 ? '30' : '45'}`;
+                    
+                    const timeIndex = tijden.indexOf(currentTime);
+                    if (timeIndex !== -1) {
+                        const cell = row.children[timeIndex + 1];
+                        showRow = cell.dataset.status === 'werk';
+                    } else {
+                        showRow = false;
+                    }
+                }
+                
+                row.style.display = showRow ? '' : 'none';
+                if (showRow) visibleCount++;
+            });
+            
+            updateAgentCount(visibleCount);
+        }
+        
+        function setupAddAgentModal() {
+            const addAgentBtn = document.getElementById('addAgentBtn');
+            const addAgentModal = document.getElementById('addAgentModal');
+            const cancelAddAgent = document.getElementById('cancelAddAgent');
+            const confirmAddAgent = document.getElementById('confirmAddAgent');
+            
+            addAgentBtn.addEventListener('click', () => {
+                let maxId = 2400;
+                agenten.forEach(agent => {
+                    const idNum = parseInt(agent.id);
+                    if (idNum > maxId) maxId = idNum;
+                });
+                
+                document.getElementById('newAgentId').value = (maxId + 1).toString();
+                document.getElementById('newAgentName').value = '';
+                addAgentModal.style.display = 'flex';
+            });
+            
+            cancelAddAgent.addEventListener('click', () => {
+                addAgentModal.style.display = 'none';
+            });
+            
+            confirmAddAgent.addEventListener('click', () => {
+                const newId = document.getElementById('newAgentId').value.trim();
+                const newName = document.getElementById('newAgentName').value.trim();
+                const defaultStatus = document.getElementById('newAgentDefaultStatus').value;
+                
+                if (!newId || !newName) {
+                    alert('Vul alstublieft een ID en naam in');
+                    return;
+                }
+                
+                if (agenten.some(agent => agent.id === newId)) {
+                    alert(`Agent ID ${newId} bestaat al. Kies een ander ID.`);
+                    return;
+                }
+                
+                const newAgent = {
+                    id: newId,
+                    naam: newName,
+                    pauzes: Array(35).fill(defaultStatus)
+                };
+                
+                agenten.push(newAgent);
+                buildTable();
+                addAgentModal.style.display = 'none';
+                
+                setTimeout(() => {
+                    const newRow = document.querySelector(`.agent-row[data-agent-id="${newId}"]`);
+                    if (newRow) newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            });
+        }
+        
+        function deleteAgent(index) {
+            if (index >= 0 && index < agenten.length) {
+                agenten.splice(index, 1);
+                buildTable();
+                updateLastModified();
+            }
+        }
+        
+        function setupBulkEditModal() {
+            const bulkEditBtn = document.getElementById('bulkEditBtn');
+            const bulkEditModal = document.getElementById('bulkEditModal');
+            const cancelBulkEdit = document.getElementById('cancelBulkEdit');
+            const confirmBulkEdit = document.getElementById('confirmBulkEdit');
+            const bulkEditOptions = bulkEditModal.querySelectorAll('.bulk-edit-btn');
+            
+            bulkEditBtn.addEventListener('click', () => {
+                if (selectedAgents.size === 0) {
+                    alert('Selecteer eerst agenten door op de checkbox naast hun naam te klikken');
+                    return;
+                }
+                
+                bulkEditModal.style.display = 'flex';
+            });
+            
+            cancelBulkEdit.addEventListener('click', () => {
+                bulkEditModal.style.display = 'none';
+            });
+            
+            let selectedBulkStatus = 'werk';
+            bulkEditOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    bulkEditOptions.forEach(opt => {
+                        opt.style.backgroundColor = 'white';
+                        opt.style.borderColor = '#ddd';
+                    });
+                    
+                    this.style.backgroundColor = '#f0f0f0';
+                    this.style.borderColor = '#3498db';
+                    selectedBulkStatus = this.dataset.status;
+                });
+            });
+            
+            confirmBulkEdit.addEventListener('click', () => {
+                selectedAgents.forEach(agentId => {
+                    const agentIndex = agenten.findIndex(a => a.id === agentId);
+                    if (agentIndex !== -1) {
+                        agenten[agentIndex].pauzes = Array(35).fill(selectedBulkStatus);
+                    }
+                });
+                
+                buildTable();
+                bulkEditModal.style.display = 'none';
+                selectedAgents.clear();
+                document.querySelectorAll('.agent-select').forEach(cb => {
+                    cb.checked = false;
+                });
+                updateBulkEditButton();
+            });
+        }
+        
+        function updateBulkEditButton() {
+            const bulkEditBtn = document.getElementById('bulkEditBtn');
+            if (selectedAgents.size > 0) {
+                bulkEditBtn.innerHTML = `<i class="fas fa-edit"></i> Bulk (${selectedAgents.size})`;
+            } else {
+                bulkEditBtn.innerHTML = `<i class="fas fa-edit"></i> Bulk`;
+            }
+        }
+        
+        function setupLegendClick() {
+            const legendItems = document.querySelectorAll('.legend-item');
+            legendItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    activeStatus = this.dataset.status;
+                    legendItems.forEach(li => {
+                        li.style.backgroundColor = '';
+                        li.style.boxShadow = '';
+                    });
+                    this.style.backgroundColor = '#e3f2fd';
+                    this.style.boxShadow = '0 0 0 2px rgba(52, 152, 219, 0.3)';
+                    editMode = true;
+                    updateEditModeIndicator();
+                });
+            });
+            document.querySelector('.legend-item[data-status="werk"]').click();
+        }
+        
+        function setupCompactToggle() {
+            document.getElementById('compactToggle').addEventListener('click', function() {
+                compactMode = !compactMode;
+                this.innerHTML = compactMode ? 
+                    '<i class="fas fa-compress"></i> Compact' : 
+                    '<i class="fas fa-expand"></i> Uitgebreid';
+                buildTable();
+            });
+        }
+        
+        function setupExportFunctionality() {
+            const exportBtn = document.getElementById('exportBtn');
+            const exportModal = document.getElementById('exportModal');
+            const closeExportBtn = document.getElementById('closeExportBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            exportBtn.addEventListener('click', function() {
+                exportModal.style.display = 'flex';
+                document.getElementById('exportPreview').innerHTML = '<p>Bezig met genereren van afbeelding...</p>';
+                
+                setTimeout(() => {
+                    captureRoosterAsImage();
+                }, 100);
+            });
+            
+            closeExportBtn.addEventListener('click', function() {
+                exportModal.style.display = 'none';
+            });
+            
+            downloadBtn.addEventListener('click', function() {
+                const img = document.querySelector('#exportPreview img');
+                if (img && img.src) {
+                    const link = document.createElement('a');
+                    link.download = `rooster-${document.getElementById('datePicker').value}.png`;
+                    link.href = img.src;
+                    link.click();
+                }
+            });
+        }
+        
+        function captureRoosterAsImage() {
+            const exportContainer = document.createElement('div');
+            exportContainer.style.padding = '20px';
+            exportContainer.style.backgroundColor = 'white';
+            exportContainer.style.maxWidth = '1000px';
+            exportContainer.style.margin = '0 auto';
+            
+            const header = document.createElement('div');
+            header.style.marginBottom = '15px';
+            header.style.borderBottom = '2px solid #3498db';
+            header.style.paddingBottom = '10px';
+            
+            const title = document.createElement('h2');
+            title.textContent = `Pauzerooster - ${document.getElementById('datePicker').value}`;
+            title.style.color = '#2c3e50';
+            title.style.margin = '0 0 5px 0';
+            
+            const subtitle = document.createElement('p');
+            subtitle.textContent = 'Diensttijden: 10:00 - 19:00 | Laatst bijgewerkt: ' + document.getElementById('lastModified').textContent;
+            subtitle.style.color = '#7f8c8d';
+            subtitle.style.margin = '0';
+            subtitle.style.fontSize = '14px';
+            
+            header.appendChild(title);
+            header.appendChild(subtitle);
+            exportContainer.appendChild(header);
+            
+            const tableClone = document.getElementById('roosterTable').cloneNode(true);
+            tableClone.querySelectorAll('.agent-select, .agent-actions').forEach(el => el.remove());
+            tableClone.style.width = '100%';
+            tableClone.style.fontSize = '14px';
+            tableClone.style.borderCollapse = 'collapse';
+            
+            tableClone.querySelectorAll('th').forEach(th => {
+                th.style.padding = '10px 8px';
+                th.style.fontSize = '13px';
+            });
+            
+            tableClone.querySelectorAll('td').forEach(td => {
+                td.style.padding = '8px 5px';
+                td.style.fontSize = '13px';
+            });
+            
+            tableClone.querySelectorAll('.cell-label').forEach(label => {
+                label.style.fontSize = '12px';
+                label.style.padding = '3px 5px';
+            });
+            
+            exportContainer.appendChild(tableClone);
+            
+            document.body.appendChild(exportContainer);
+            
+            html2canvas(exportContainer, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: false
+            }).then(canvas => {
+                document.body.removeChild(exportContainer);
+                const preview = document.getElementById('exportPreview');
+                preview.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = canvas.toDataURL('image/png');
+                img.alt = 'Rooster export';
+                preview.appendChild(img);
+            }).catch(error => {
+                console.error('Fout bij genereren afbeelding:', error);
+                document.getElementById('exportPreview').innerHTML = 
+                    '<p style="color: red;">Fout bij genereren afbeelding. Probeer het opnieuw.</p>';
+            });
+        }
+        
+        function setupDatePicker() {
+            const datePicker = document.getElementById('datePicker');
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            
+            datePicker.min = today.toISOString().split('T')[0];
+            datePicker.value = tomorrow.toISOString().split('T')[0];
+            
+            datePicker.addEventListener('change', async function() {
+                const selectedDate = new Date(this.value);
+                const formattedDate = selectedDate.toLocaleDateString('nl-NL', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                
+                if (editMode) {
+                    if (confirm('Je hebt niet-opgeslagen wijzigingen. Wil je deze eerst opslaan voordat je van datum wisselt?')) {
+                        if (githubConfig.connected) {
+                            await saveToGitHub();
+                        } else {
+                            saveToLocalStorage();
+                        }
+                    }
+                }
+                
+                loadData();
+                editMode = false;
+                updateEditModeIndicator();
+                alert(`Rooster voor ${formattedDate} geladen.`);
+            });
+        }
+        
+        function showContextMenu(event, cell) {
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.style.left = `${event.pageX}px`;
+            contextMenu.style.top = `${event.pageY}px`;
+            contextMenu.style.display = 'block';
+            
+            const menuItems = contextMenu.querySelectorAll('.context-menu-item');
+            menuItems.forEach(item => {
+                item.onclick = function() {
+                    const status = this.dataset.status;
+                    updateCellStatus(cell, status);
+                    contextMenu.style.display = 'none';
+                };
+            });
+            
+            setTimeout(() => {
+                document.addEventListener('click', closeContextMenu);
+            }, 10);
+        }
+        
+        function closeContextMenu() {
+            document.getElementById('contextMenu').style.display = 'none';
+            document.removeEventListener('click', closeContextMenu);
+        }
+        
+        function updateEditModeIndicator() {
+            const indicator = document.getElementById('editModeIndicator');
+            if (editMode) {
+                indicator.style.display = 'block';
+            } else {
+                indicator.style.display = 'none';
+            }
+        }
+        
+        function updateLastModified() {
+            lastModified = new Date();
+            const formattedTime = lastModified.toLocaleTimeString('nl-NL', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            document.getElementById('lastModified').textContent = formattedTime;
+        }
+        
+        function updateAgentCount(count = agenten.length) {
+            document.getElementById('agentCount').textContent = count;
+        }
+        
+        // RESET knop
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            if (confirm('Weet je zeker dat je alle wijzigingen wilt resetten? Alle aangepaste pauzes gaan verloren.')) {
+                agenten.forEach(agent => {
+                    agent.pauzes = Array(35).fill("werk");
+                });
+                buildTable();
+                editMode = false;
+                updateEditModeIndicator();
+            }
+        });
+        
+        // START ALLES
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
