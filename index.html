@@ -1465,7 +1465,7 @@ async function saveToGitHub() {
         const currentDate = getCurrentDate();
         const dataToSave = {
             date: currentDate,
-            agenten: agenten,  // Pas aan naar jouw variabele naam
+            agenten: alleAgenten,  // Pas aan naar jouw variabele naam
             lastModified: new Date().toISOString(),
             user: githubConfig.user
         };
