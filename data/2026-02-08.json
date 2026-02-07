@@ -1,0 +1,74 @@
+{
+  "date": "2026-02-08",
+  "agenten": {
+    "klantenservice": [
+      {
+        "id": "2401",
+        "naam": "Gülden Sahin",
+        "isActive": true,
+        "startDate": "2024-01-01",
+        "endDate": null
+      },
+      {
+        "id": "2402",
+        "naam": "Alex de Klein",
+        "isActive": true,
+        "startDate": "2024-01-01",
+        "endDate": null
+      },
+      {
+        "id": "2404",
+        "naam": "Ilona de Winter",
+        "isActive": true,
+        "startDate": "2024-01-01",
+        "endDate": null
+      },
+      {
+        "id": "2406",
+        "naam": "Hira Kara",
+        "isActive": true,
+        "startDate": "2024-01-01",
+        "endDate": null
+      },
+      {
+        "id": "2407",
+        "naam": "Fatima Millet",
+        "isActive": true,
+        "startDate": "2024-01-01",
+        "endDate": null
+      },
+      {
+        "id": "2409",
+        "naam": "Nathalie de Witte",
+        "isActive": true,
+        "startDate": "2024-01-01",
+        "endDate": null
+      }
+    ],
+    "admin": [
+      {
+        "id": "AD2401",
+        "naam": "halloo",
+        "isActive": false,
+        "startDate": "2026-02-07",
+        "endDate": "2026-02-07"
+      },
+      {
+        "id": "AD2402",
+        "naam": "test 123",
+        "isActive": true,
+        "startDate": "2026-02-09",
+        "endDate": null
+      },
+      {
+        "id": "AD2403",
+        "naam": "Zonderdag de derrde",
+        "isActive": true,
+        "startDate": "2026-02-09",
+        "endDate": null
+      }
+    ]
+  },
+  "lastModified": "2026-02-07T07:12:22.056Z",
+  "user": "Mehmet"
+}
